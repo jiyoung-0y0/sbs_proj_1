@@ -13,6 +13,8 @@ public class Main {
     public static void main(String[] args) {
         // 유저 정보 초기화
         initializeCredentials();
+        // 교수 페이지에서 사용할 학생 정보 설정
+        ProfessorController.setStudentCredentials(studentCredentials);
         // 로그인 페이지 표시
         showLoginPage();
     }
