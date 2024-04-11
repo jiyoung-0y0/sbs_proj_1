@@ -1,5 +1,9 @@
 package org.example;
 
+import org.example.Controller.AdminController;
+import org.example.Controller.ProfessorController;
+import org.example.Controller.StudentController;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -68,21 +72,24 @@ public class Main {
                 // 선택된 유저 타입에 따라 로그인 시도
                 switch (choice) {
                     case 1:
+                        StudentController studentController = new StudentController();
                         loginSuccess = login(username, password, studentCredentials);
                         if (loginSuccess) {
-                            StudentController.showPage(username);
+                            studentController.showPage(username);
                         }
                         break;
                     case 2:
+                        ProfessorController professorController = new ProfessorController();
                         loginSuccess = login(username, password, professorCredentials);
                         if (loginSuccess) {
-                            ProfessorController.showPage(username);
+                            professorController.showPage(username);
                         }
                         break;
                     case 3:
+                        AdminController adminController = new AdminController();
                         loginSuccess = login(username, password, adminCredentials);
                         if (loginSuccess) {
-                            AdminController.showPage(username);
+                            adminController.showPage(username);
                         }
                         break;
                 }
@@ -96,7 +103,7 @@ public class Main {
             }
         } while (!loginSuccess); // 로그인이 성공할 때까지 반복
 
-        scanner.close();
+        scanner.close(); // Scanner 닫기
     }
 
     // 입력된 사용자 이름이 유효한지 확인하는 메서드
