@@ -3,6 +3,7 @@ package org.example.service;
 
 import org.example.dao.ProfessorDAO;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -44,12 +45,61 @@ public class ProfessorService {
     }
 
     public void manageGrades() {
-        // 성적 입력/수정/삭제 기능을 구현하세요
-        System.out.println("성적 입력/수정/삭제 기능을 구현하세요");
+        Scanner scanner = new Scanner(System.in);
+        if (lectures.isEmpty()) {
+            System.out.println("등록된 강의가 없습니다. 강의를 먼저 등록하세요.");
+            return;
+        }
+        System.out.println("등록된 강의 목록:");
+        for (String lectureName : lectures.keySet()) {
+            System.out.println("- " + lectureName);
+        }
+        System.out.print("성적을 입력할 강의 이름을 선택하세요: ");
+        String selectedLecture = scanner.nextLine();
+        if (!lectures.containsKey(selectedLecture)) {
+            System.out.println("해당 강의가 존재하지 않습니다.");
+            return;
+        }
+        System.out.print("성적을 입력할 학생의 학번을 입력하세요: ");
+        String studentId = scanner.nextLine();
+        System.out.print("성적을 입력하세요 (A+, A0, B+, B0, C+, C0, D+, D0, F): ");
+        String grade = scanner.nextLine();
+        try {
+            professorDAO.saveGrade(selectedLecture, studentId, grade);
+            System.out.println("성적이 성공적으로 입력되었습니다.");
+        } catch (SQLException e) {
+            System.out.println("성적 입력 중 오류가 발생했습니다: " + e.getMessage());
+        }
     }
 
     public void viewStudentGrades() {
-        // 학생들 성적 출력 기능을 구현하세요
-        System.out.println("학생들 성적 출력 기능을 구현하세요");
+        Scanner scanner = new Scanner(System.in);
+        if (lectures.isEmpty()) {
+            System.out.println("등록된 강의가 없습니다.");
+            return;
+        }
+        System.out.println("등록된 강의 목록:");
+        for (String lectureName : lectures.keySet()) {
+            System.out.println("- " + lectureName);
+        }
+        System.out.print("성적을 확인할 강의 이름을 선택하세요: ");
+        String selectedLecture = scanner.nextLine();
+        if (!lectures.containsKey(selectedLecture)) {
+            System.out.println("해당 강의가 존재하지 않습니다.");
+            return;
+        }
+        try {
+            Map<String, String> grades = professorDAO.getGrades(selectedLecture);
+            if (grades.isEmpty()) {
+                System.out.println("등록된 학생 성적이 없습니다.");
+                return;
+            }
+            System.out.println(selectedLecture + " 과목의 성적:");
+            for (Map.Entry<String, String> entry : grades.entrySet()) {
+                System.out.println("학번: " + entry.getKey() + ", 성적: " + entry.getValue());
+            }
+        } catch (SQLException e) {
+            System.out.println("성적 조회 중 오류가 발생했습니다: " + e.getMessage());
+        }
     }
 }
