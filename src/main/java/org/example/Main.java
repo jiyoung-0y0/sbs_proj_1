@@ -48,16 +48,21 @@ public class Main {
             int choice;
             // 사용자가 올바른 선택을 할 때까지 반복해서 선택하도록 하는 루프
             do {
+                choice = 0; // 초기화
                 System.out.println("사용자 유형을 선택하세요: ");
                 System.out.println("1. 학생");
                 System.out.println("2. 교수");
                 System.out.println("3. 관리자");
                 System.out.print("선택: ");
-                choice = scanner.nextInt();
-                scanner.nextLine(); // 엔터키 소비
-
-                if (choice < 1 || choice > 3) {
-                    System.out.println("잘못된 선택입니다. 1부터 3 사이의 숫자를 입력하세요.");
+                try {
+                    choice = scanner.nextInt(); // 정수 입력 받기
+                    scanner.nextLine(); // 엔터키 소비
+                    if (choice < 1 || choice > 3) {
+                        System.out.println("잘못된 선택입니다. 1부터 3 사이의 숫자를 입력하세요.");
+                    }
+                } catch (Exception e) {
+                    System.out.println("잘못된 선택입니다. 숫자를 입력하세요.");
+                    scanner.nextLine(); // 잘못된 입력을 소비하여 무한루프를 방지합니다.
                 }
             } while (choice < 1 || choice > 3);
 
