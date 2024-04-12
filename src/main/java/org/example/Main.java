@@ -40,7 +40,7 @@ public class Main {
     }
 
     // 로그인 페이지 표시 및 로그인 시도 메서드
-    private static void showLoginPage() {
+    public static void showLoginPage() {
         Scanner scanner = new Scanner(System.in);
 
         boolean loginSuccess = false;
@@ -53,18 +53,24 @@ public class Main {
                 System.out.println("1. 학생");
                 System.out.println("2. 교수");
                 System.out.println("3. 관리자");
+                System.out.println("0. 종료");
                 System.out.print("선택: ");
                 try {
                     choice = scanner.nextInt(); // 정수 입력 받기
                     scanner.nextLine(); // 엔터키 소비
-                    if (choice < 1 || choice > 3) {
-                        System.out.println("잘못된 선택입니다. 1부터 3 사이의 숫자를 입력하세요.");
+                    if (choice < 0 || choice > 3) {
+                        System.out.println("잘못된 선택입니다. 0부터 3 사이의 숫자를 입력하세요.");
                     }
                 } catch (Exception e) {
                     System.out.println("잘못된 선택입니다. 숫자를 입력하세요.");
                     scanner.nextLine(); // 잘못된 입력을 소비하여 무한루프를 방지합니다.
                 }
-            } while (choice < 1 || choice > 3);
+            } while (choice < 0 || choice > 3);
+
+            if (choice == 0) {
+                System.out.println("프로그램을 종료합니다.");
+                return;
+            }
 
             System.out.print("사용자 이름을 입력하세요: ");
             String username = scanner.nextLine();

@@ -1,7 +1,7 @@
 package org.example.Controller;
 
+import org.example.Main;
 import org.example.service.StudentService;
-
 import java.util.Scanner;
 
 public class StudentController {
@@ -36,11 +36,12 @@ public class StudentController {
                     System.out.println("관리자가 작성한 공지를 확인합니다.");
                     break;
                 case 0:
-                    System.out.println("프로그램을 종료합니다.");
-                    break;
+                    System.out.println("로그아웃합니다.");
+                    Main.showLoginPage(); // 로그아웃하면 메인 페이지로 돌아가기
+                    return;
                 default:
                     System.out.println("잘못된 선택입니다. 다시 선택하세요.");
             }
-        } while (choice != 0);
+        } while (true); // 무한 루프로 변경하여 학생이 로그아웃할 때까지 계속해서 메뉴를 표시
     }
 }

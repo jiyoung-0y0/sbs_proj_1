@@ -1,5 +1,6 @@
 package org.example.Controller;
 
+import org.example.Main;
 import org.example.service.AdminService;
 
 import java.util.Scanner;
@@ -27,6 +28,7 @@ public class AdminController {
                     break;
                 case 3:
                     System.out.println("로그아웃합니다.");
+                    Main.showLoginPage();
                     return;
                 default:
                     System.out.println("잘못된 선택입니다. 다시 선택하세요.");
