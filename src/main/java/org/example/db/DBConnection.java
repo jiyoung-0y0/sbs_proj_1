@@ -59,7 +59,7 @@ public class DBConnection {
             } else if (row.get(key) instanceof Integer) {
                 return ((int) row.get(key)) == 1;
             } else if (row.get(key) instanceof Boolean) {
-                return ((boolean) row.get(key));
+                return (boolean) row.get(key);
             }
         }
 
@@ -159,6 +159,68 @@ public class DBConnection {
         }
 
         return id;
+    }
+
+    // 새로운 메서드 추가
+    public int insertWithParams(String sql, int studentId, String lectureName) {
+        int id = -1;
+
+        try {
+            PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            pstmt.setInt(1, studentId);
+            pstmt.setString(2, lectureName);
+            pstmt.executeUpdate();
+            ResultSet rs = pstmt.getGeneratedKeys();
+
+            if (rs.next()) {
+                id = rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            System.err.printf("[SQL 예외, SQL : %s] : %s\n", sql, e.getMessage());
+        }
+
+        return id;
+    }
+
+    // 새로운 메서드 추가
+    public List<Map<String, Object>> selectRowsWithParams(String sql, int studentId) {
+        List<Map<String, Object>> rows = new ArrayList<>();
+
+        try {
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+            pstmt.setInt(1, studentId);
+            ResultSet rs = pstmt.executeQuery();
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnSize = metaData.getColumnCount();
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+
+                for (int columnIndex = 0; columnIndex < columnSize; columnIndex++) {
+                    String columnName = metaData.getColumnName(columnIndex + 1);
+                    Object value = rs.getObject(columnName);
+
+                    if (value instanceof Long) {
+                        int numValue = (int) (long) value;
+                        row.put(columnName, numValue);
+                    } else if (value instanceof Timestamp) {
+                        String dateValue = value.toString();
+                        dateValue = dateValue.substring(0, dateValue.length() - 2);
+                        row.put(columnName, dateValue);
+                    } else {
+                        row.put(columnName, value);
+                    }
+                }
+
+                rows.add(row);
+            }
+        } catch (SQLException e) {
+            System.err.printf("[SQL 예외, SQL : %s] : %s\n", sql, e.getMessage());
+            e.printStackTrace();
+        }
+
+        return rows;
     }
 
     public void close() {

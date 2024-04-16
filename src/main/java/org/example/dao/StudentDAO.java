@@ -1,30 +1,40 @@
 package org.example.dao;
 
-import java.util.HashMap;
+import org.example.db.DBConnection;
+
+import java.util.List;
 import java.util.Map;
 
 public class StudentDAO {
-    // 예시로 사용할 데이터베이스 대신에 강의 정보를 저장할 맵을 사용합니다.
-    private Map<String, String> lectureDatabase = new HashMap<>();
+    private DBConnection dbConnection;
 
-    // 강의 정보를 가져오는 메서드
-    public Map<String, String> getLectures() {
-        // 실제 데이터베이스에서 강의 정보를 가져오는 로직을 구현합니다.
-        // 여기서는 간단히 예시로 맵을 반환합니다.
-        return lectureDatabase;
+    public StudentDAO() {
+        dbConnection = new DBConnection();
+        dbConnection.connect(); // 데이터베이스 연결
+    }
+
+    // 학생이 강의를 신청하는 메서드
+    public boolean registerCourse(int studentId, String lectureName) {
+        String sql = "INSERT INTO course_registrations (student_id, lecture_id) " +
+                "SELECT ?, lecture_id FROM lectures WHERE lecture_name = ? " +
+                "AND remaining_capacity > 0";
+        int affectedRows = dbConnection.insertWithParams(sql, studentId, lectureName);
+        return affectedRows > 0; // 삽입이 성공했으면 true 반환, 실패했으면 false 반환
     }
 
     // 학생의 시간표를 조회하는 메서드
-    public void viewTimetable() {
-        // 실제 데이터베이스에서 학생의 시간표 정보를 가져오는 로직을 구현합니다.
-        // 여기서는 간단히 예시로 출력만 합니다.
-        System.out.println("학생의 시간표를 조회합니다.");
+    public List<Map<String, Object>> viewTimetable(int studentId) {
+        String sql = "SELECT l.lecture_name FROM lectures l " +
+                "JOIN course_registrations cr ON l.lecture_id = cr.lecture_id " +
+                "WHERE cr.student_id = ?";
+        return dbConnection.selectRowsWithParams(sql, studentId);
     }
 
     // 학생의 과목과 성적을 조회하는 메서드
-    public void viewSubjectsAndGrades() {
-        // 실제 데이터베이스에서 학생의 과목과 성적 정보를 가져오는 로직을 구현합니다.
-        // 여기서는 간단히 예시로 출력만 합니다.
-        System.out.println("학생의 과목과 성적을 조회합니다.");
+    public List<Map<String, Object>> viewSubjectsAndGrades(int studentId) {
+        String sql = "SELECT l.lecture_name, g.grade FROM lectures l " +
+                "JOIN grades g ON l.lecture_id = g.lecture_id " +
+                "WHERE g.student_id = ?";
+        return dbConnection.selectRowsWithParams(sql, studentId);
     }
 }
