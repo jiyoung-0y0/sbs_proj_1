@@ -34,7 +34,7 @@ public class StudentService {
         if (lectures.containsKey(selectedLecture)) {
             System.out.println(selectedLecture + " 강의를 신청했습니다.");
             // 여기서 studentId와 lectureId를 적절히 지정해야 합니다.
-            int lectureId = Integer.parseInt(lectures.get(selectedLecture)); // 강의 이름에 해당하는 강의 ID를 가져옵니다.
+            String lectureId = lectures.get(selectedLecture); // 강의 이름에 해당하는 강의 ID를 가져옵니다.
             studentDAO.registerCourse(studentId, lectureId); // 학생이 해당 강의를 신청합니다.
         } else {
             System.out.println("해당 강의가 존재하지 않습니다.");
