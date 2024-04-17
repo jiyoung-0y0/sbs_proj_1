@@ -1,8 +1,7 @@
 -- 데이터베이스 생성
-USE sbs_proj_1;
 DROP DATABASE IF EXISTS sbs_proj_1;
 CREATE DATABASE sbs_proj_1;
-
+USE sbs_proj_1;
 -- 학생 테이블 생성
 CREATE TABLE students (
     student_id INT AUTO_INCREMENT PRIMARY KEY,

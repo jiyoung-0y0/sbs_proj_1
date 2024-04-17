@@ -3,18 +3,45 @@ package org.example;
 import org.example.Controller.AdminController;
 import org.example.Controller.ProfessorController;
 import org.example.Controller.StudentController;
+import org.example.db.DBConnection;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
+
+
     // 각 유저의 아이디와 비밀번호를 저장하는 맵
     private static Map<String, String> studentCredentials = new HashMap<>();
     private static Map<String, String> professorCredentials = new HashMap<>();
     private static Map<String, String> adminCredentials = new HashMap<>();
 
     public static void main(String[] args) {
+        {
+            // DB 연결 정보 설정
+            DBConnection.DB_NAME = "sbs_proj_1";
+            DBConnection.DB_USER = "사용자명";
+            DBConnection.DB_PASSWORD = "비밀번호";
+            DBConnection.DB_PORT = 3306; // MySQL의 기본 포트
+
+            // DB 연결 객체 생성
+            DBConnection dbConnection = new DBConnection();
+
+            // 연결 수행
+            dbConnection.connect();
+
+            // 연결이 성공적으로 수행되었는지 확인
+            if (dbConnection.getConnection() != null) {
+                System.out.println("데이터베이스 연결 성공!");
+            } else {
+                System.out.println("데이터베이스 연결 실패!");
+            }
+
+            // 연결 종료
+            dbConnection.close();
+        }
+
         // 유저 정보 초기화
         initializeCredentials();
         // 교수 페이지에서 사용할 학생 정보 설정

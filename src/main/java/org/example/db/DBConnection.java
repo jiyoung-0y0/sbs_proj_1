@@ -13,6 +13,10 @@ public class DBConnection {
     public static String DB_PASSWORD;
     public static int DB_PORT;
 
+    public Connection getConnection() {
+        return connection;
+    }
+
     public void connect() {
         String url = "jdbc:mysql://localhost:" + DB_PORT + "/" + DB_NAME
                 + "?serverTimezone=Asia/Seoul&useOldAliasMetadataBehavior=true";
@@ -80,7 +84,7 @@ public class DBConnection {
         List<Map<String, Object>> rows = new ArrayList<>();
 
         try {
-            Statement stmt = connection.createStatement();
+            Statement stmt = getConnection().createStatement();
             ResultSet rs = stmt.executeQuery(sql);
             ResultSetMetaData metaData = rs.getMetaData();
             int columnSize = metaData.getColumnCount();
@@ -119,7 +123,7 @@ public class DBConnection {
 
         Statement stmt;
         try {
-            stmt = connection.createStatement();
+            stmt = getConnection().createStatement();
             affectedRows = stmt.executeUpdate(sql);
         } catch (SQLException e) {
             System.err.printf("[SQL 예외, SQL : %s] : %s\n", sql, e.getMessage());
@@ -133,7 +137,7 @@ public class DBConnection {
 
         Statement stmt;
         try {
-            stmt = connection.createStatement();
+            stmt = getConnection().createStatement();
             affectedRows = stmt.executeUpdate(sql);
         } catch (SQLException e) {
             System.err.printf("[SQL 예외, SQL : %s] : %s\n", sql, e.getMessage());
@@ -146,7 +150,7 @@ public class DBConnection {
         int id = -1;
 
         try {
-            Statement stmt = connection.createStatement();
+            Statement stmt = getConnection().createStatement();
             stmt.execute(sql, Statement.RETURN_GENERATED_KEYS);
             ResultSet rs = stmt.getGeneratedKeys();
 
@@ -166,7 +170,7 @@ public class DBConnection {
         int id = -1;
 
         try {
-            PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement pstmt = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             pstmt.setInt(1, studentId);
             pstmt.setString(2, lectureName);
             pstmt.executeUpdate();
@@ -188,7 +192,7 @@ public class DBConnection {
         List<Map<String, Object>> rows = new ArrayList<>();
 
         try {
-            PreparedStatement pstmt = connection.prepareStatement(sql);
+            PreparedStatement pstmt = getConnection().prepareStatement(sql);
             pstmt.setInt(1, studentId);
             ResultSet rs = pstmt.executeQuery();
             ResultSetMetaData metaData = rs.getMetaData();
@@ -224,9 +228,9 @@ public class DBConnection {
     }
 
     public void close() {
-        if (connection != null) {
+        if (getConnection() != null) {
             try {
-                connection.close();
+                getConnection().close();
             } catch (SQLException e) {
                 System.err.printf("[SQL 예외] : %s\n", e.getMessage());
             }
