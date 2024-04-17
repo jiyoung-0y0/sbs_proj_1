@@ -1,21 +1,57 @@
 package org.example.model;
 
 public class Student {
-    private String id;
-    private String password;
+    private int studentId;
+    private String studentName;
+    private String studentUsername;
+    private String studentPassword;
+    private int totalCoursesAllowed;
 
-    public Student(String id, String password) {
-        this.id = id;
-        this.password = password;
+    public Student(int studentId, String studentName, String studentUsername, String studentPassword, int totalCoursesAllowed) {
+        this.studentId = studentId;
+        this.studentName = studentName;
+        this.studentUsername = studentUsername;
+        this.studentPassword = studentPassword;
+        this.totalCoursesAllowed = totalCoursesAllowed;
     }
 
-    // getter 및 setter 생략
+    public int getStudentId() {
+        return studentId;
+    }
 
-    @Override
-    public String toString() {
-        return "Student{" +
-                "id='" + id + '\'' +
-                ", password='" + password + '\'' +
-                '}';
+    public void setStudentId(int studentId) {
+        this.studentId = studentId;
+    }
+
+    public String getStudentName() {
+        return studentName;
+    }
+
+    public void setStudentName(String studentName) {
+        this.studentName = studentName;
+    }
+
+    public String getStudentUsername() {
+        return studentUsername;
+    }
+
+    public void setStudentUsername(String studentUsername) {
+        this.studentUsername = studentUsername;
+    }
+
+    public String getStudentPassword() {
+        return studentPassword;
+    }
+
+    public void setStudentPassword(String studentPassword) {
+        this.studentPassword = studentPassword;
+    }
+
+    public int getTotalCoursesAllowed() {
+        return totalCoursesAllowed;
+    }
+
+    public void setTotalCoursesAllowed(int totalCoursesAllowed) {
+        this.totalCoursesAllowed = totalCoursesAllowed;
     }
 }

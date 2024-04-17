@@ -21,8 +21,8 @@ public class Main {
         {
             // DB 연결 정보 설정
             DBConnection.DB_NAME = "sbs_proj_1";
-            DBConnection.DB_USER = "사용자명";
-            DBConnection.DB_PASSWORD = "비밀번호";
+            DBConnection.DB_USER = "sbsst";
+            DBConnection.DB_PASSWORD = "sbs123414";
             DBConnection.DB_PORT = 3306; // MySQL의 기본 포트
 
             // DB 연결 객체 생성
