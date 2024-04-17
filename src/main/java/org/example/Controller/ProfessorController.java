@@ -2,12 +2,15 @@ package org.example.Controller;
 
 import org.example.Main;
 import org.example.service.ProfessorService;
+import org.example.service.StudentService;
 
 import java.util.Map;
 import java.util.Scanner;
 
 public class ProfessorController {
-    private ProfessorService professorService = new ProfessorService();
+    // StudentService 객체 생성
+    StudentService studentService = new StudentService();
+    private ProfessorService professorService = new ProfessorService(studentService);
 
     public static void setStudentCredentials(Map<String, String> studentCredentials) {
     }

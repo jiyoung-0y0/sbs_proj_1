@@ -1,4 +1,3 @@
-// ProfessorService.java
 package org.example.service;
 
 import org.example.dao.ProfessorDAO;
@@ -11,6 +10,11 @@ import java.util.Scanner;
 public class ProfessorService {
     private Map<String, String> lectures = new HashMap<>();
     private ProfessorDAO professorDAO = new ProfessorDAO();
+    private StudentService studentService;
+
+    public ProfessorService(StudentService studentService) {
+        this.studentService = studentService;
+    }
 
     public void registerLecture() {
         Scanner scanner = new Scanner(System.in);
@@ -20,6 +24,7 @@ public class ProfessorService {
         String lectureCode = scanner.nextLine();
         lectures.put(lectureName, lectureCode);
         professorDAO.saveLecture(lectureName, lectureCode);
+        studentService.setLectures(lectures); // 학생 서비스에 강의 목록 설정
         System.out.println("강의 \"" + lectureName + "\"을(를) 등록했습니다.");
     }
 
