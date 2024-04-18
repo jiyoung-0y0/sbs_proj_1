@@ -1,74 +1,111 @@
--- 데이터베이스 생성
-DROP DATABASE IF EXISTS sbs_proj_1;
-CREATE DATABASE sbs_proj_1;
-USE sbs_proj_1;
--- 학생 테이블 생성
-CREATE TABLE students (
-    student_id INT AUTO_INCREMENT PRIMARY KEY,
-    student_name VARCHAR(100) NOT NULL,
-    student_username VARCHAR(100) UNIQUE NOT NULL,
-    student_password VARCHAR(100) NOT NULL,
-    total_courses_allowed INT DEFAULT 5 -- 학생이 신청할 수 있는 총 강의 수 (기본값: 5)
-);
+/*
+SQLyog Community v13.2.1 (64 bit)
+MySQL - 10.4.32-MariaDB : Database - sbs_proj_1
+*********************************************************************
+*/
 
--- 교수 테이블 생성
-CREATE TABLE professors (
-    professor_id INT AUTO_INCREMENT PRIMARY KEY,
-    professor_name VARCHAR(100) NOT NULL,
-    professor_username VARCHAR(100) UNIQUE NOT NULL,
-    professor_password VARCHAR(100) NOT NULL
-);
+/*!40101 SET NAMES utf8 */;
 
--- 강의 테이블 생성
-CREATE TABLE lectures (
-    lecture_id INT AUTO_INCREMENT PRIMARY KEY,
-    lecture_name VARCHAR(100) NOT NULL,
-    professor_id INT,
-    capacity INT DEFAULT 3, -- 수용 가능한 학생 수 (기본값: 3)
-    remaining_capacity INT DEFAULT 3, -- 남은 수용 가능한 학생 수 (기본값: 3)
-    FOREIGN KEY (professor_id) REFERENCES professors(professor_id)
-);
+/*!40101 SET SQL_MODE=''*/;
 
--- 성적 테이블 생성
-CREATE TABLE grades (
-    grade_id INT AUTO_INCREMENT PRIMARY KEY,
-    lecture_id INT,
-    student_id INT,
-    grade DECIMAL(4,2),
-    FOREIGN KEY (lecture_id) REFERENCES lectures(lecture_id),
-    FOREIGN KEY (student_id) REFERENCES students(student_id)
-);
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/`sbs_proj_1` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
 
--- 강의 신청 테이블 생성
-CREATE TABLE course_registrations (
-    registration_id INT AUTO_INCREMENT PRIMARY KEY,
-    student_id INT,
-    lecture_id INT,
-    UNIQUE KEY (student_id, lecture_id), -- 학생이 중복해서 신청하는 것을 방지
-    FOREIGN KEY (student_id) REFERENCES students(student_id),
-    FOREIGN KEY (lecture_id) REFERENCES lectures(lecture_id)
-);
+USE `sbs_proj_1`;
 
--- 학생 등록 수 제한을 위한 트리거 생성
-DELIMITER //
-CREATE TRIGGER limit_student_registration
-BEFORE INSERT ON students
-FOR EACH ROW
-BEGIN
-    DECLARE student_count INT;
-    SELECT COUNT(*) INTO student_count FROM students;
-    IF student_count >= 5 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Only 5 students can be registered.';
-    END IF;
-END //
-DELIMITER ;
+/*Table structure for table `course_registrations` */
 
--- 강의에 학생이 신청할 때 남은 수용 가능한 학생 수 갱신
-DELIMITER //
-CREATE TRIGGER update_remaining_capacity
-BEFORE INSERT ON course_registrations
-FOR EACH ROW
+DROP TABLE IF EXISTS `course_registrations`;
+
+CREATE TABLE `course_registrations` (
+  `registration_id` int(11) NOT NULL AUTO_INCREMENT,
+  `student_id` int(11) DEFAULT NULL,
+  `lecture_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`registration_id`),
+  UNIQUE KEY `student_id` (`student_id`,`lecture_id`),
+  KEY `lecture_id` (`lecture_id`),
+  CONSTRAINT `course_registrations_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`student_id`),
+  CONSTRAINT `course_registrations_ibfk_2` FOREIGN KEY (`lecture_id`) REFERENCES `lectures` (`lecture_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+/*Data for the table `course_registrations` */
+
+/*Table structure for table `grades` */
+
+DROP TABLE IF EXISTS `grades`;
+
+CREATE TABLE `grades` (
+  `grade_id` int(11) NOT NULL AUTO_INCREMENT,
+  `lecture_id` int(11) DEFAULT NULL,
+  `student_id` int(11) DEFAULT NULL,
+  `grade` decimal(4,2) DEFAULT NULL,
+  PRIMARY KEY (`grade_id`),
+  KEY `lecture_id` (`lecture_id`),
+  KEY `student_id` (`student_id`),
+  CONSTRAINT `grades_ibfk_1` FOREIGN KEY (`lecture_id`) REFERENCES `lectures` (`lecture_id`),
+  CONSTRAINT `grades_ibfk_2` FOREIGN KEY (`student_id`) REFERENCES `students` (`student_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+/*Data for the table `grades` */
+
+/*Table structure for table `lectures` */
+
+DROP TABLE IF EXISTS `lectures`;
+
+CREATE TABLE `lectures` (
+  `lecture_id` int(11) NOT NULL AUTO_INCREMENT,
+  `lecture_name` varchar(100) NOT NULL,
+  `professor_id` int(11) DEFAULT NULL,
+  `capacity` int(11) DEFAULT 3,
+  `remaining_capacity` int(11) DEFAULT 3,
+  PRIMARY KEY (`lecture_id`),
+  KEY `professor_id` (`professor_id`),
+  CONSTRAINT `lectures_ibfk_1` FOREIGN KEY (`professor_id`) REFERENCES `professors` (`professor_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+/*Data for the table `lectures` */
+
+/*Table structure for table `professors` */
+
+DROP TABLE IF EXISTS `professors`;
+
+CREATE TABLE `professors` (
+  `professor_id` int(11) NOT NULL AUTO_INCREMENT,
+  `professor_name` varchar(100) NOT NULL,
+  `professor_username` varchar(100) NOT NULL,
+  `professor_password` varchar(100) NOT NULL,
+  PRIMARY KEY (`professor_id`),
+  UNIQUE KEY `professor_username` (`professor_username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+/*Data for the table `professors` */
+
+/*Table structure for table `students` */
+
+DROP TABLE IF EXISTS `students`;
+
+CREATE TABLE `students` (
+  `student_id` int(11) NOT NULL AUTO_INCREMENT,
+  `student_name` varchar(100) NOT NULL,
+  `student_username` varchar(100) NOT NULL,
+  `student_password` varchar(100) NOT NULL,
+  `total_courses_allowed` int(11) DEFAULT 5,
+  PRIMARY KEY (`student_id`),
+  UNIQUE KEY `student_username` (`student_username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+/*Data for the table `students` */
+
+/* Trigger structure for table `course_registrations` */
+
+DELIMITER $$
+
+/*!50003 DROP TRIGGER*//*!50032 IF EXISTS */ /*!50003 `update_remaining_capacity` */$$
+
+/*!50003 CREATE */ /*!50017 DEFINER = 'sbsst'@'%' */ /*!50003 TRIGGER `update_remaining_capacity` BEFORE INSERT ON `course_registrations` FOR EACH ROW 
 BEGIN
     UPDATE lectures
     SET remaining_capacity = remaining_capacity - 1
@@ -77,14 +114,18 @@ BEGIN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'No remaining capacity for this lecture.';
     END IF;
-END //
+END */$$
+
+
 DELIMITER ;
 
--- 학생이 이미 신청한 강의를 다시 신청하는 것을 방지하는 트리거 생성
-DELIMITER //
-CREATE TRIGGER prevent_duplicate_registration
-BEFORE INSERT ON course_registrations
-FOR EACH ROW
+/* Trigger structure for table `course_registrations` */
+
+DELIMITER $$
+
+/*!50003 DROP TRIGGER*//*!50032 IF EXISTS */ /*!50003 `prevent_duplicate_registration` */$$
+
+/*!50003 CREATE */ /*!50017 DEFINER = 'sbsst'@'%' */ /*!50003 TRIGGER `prevent_duplicate_registration` BEFORE INSERT ON `course_registrations` FOR EACH ROW 
 BEGIN
     DECLARE existing_registration_count INT;
     SELECT COUNT(*) INTO existing_registration_count
@@ -94,11 +135,31 @@ BEGIN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Student has already registered for this lecture.';
     END IF;
-END //
+END */$$
+
+
 DELIMITER ;
 
--- 학생이 신청한 강의 목록 조회
-SELECT l.lecture_name
-FROM lectures l
-JOIN course_registrations cr ON l.lecture_id = cr.lecture_id
-WHERE cr.student_id = <학생ID>; -- 여기서 <학생ID>는 실제 학생의 ID로 대체해야 합니다.
+/* Trigger structure for table `students` */
+
+DELIMITER $$
+
+/*!50003 DROP TRIGGER*//*!50032 IF EXISTS */ /*!50003 `limit_student_registration` */$$
+
+/*!50003 CREATE */ /*!50017 DEFINER = 'sbsst'@'%' */ /*!50003 TRIGGER `limit_student_registration` BEFORE INSERT ON `students` FOR EACH ROW 
+BEGIN
+    DECLARE student_count INT;
+    SELECT COUNT(*) INTO student_count FROM students;
+    IF student_count >= 5 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Only 5 students can be registered.';
+    END IF;
+END */$$
+
+
+DELIMITER ;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;

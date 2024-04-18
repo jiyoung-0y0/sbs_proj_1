@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.dao.StudentDAO;
+import org.example.db.DBConnection;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,7 +9,15 @@ import java.util.Scanner;
 
 public class StudentService {
     private Map<String, String> lectures = new HashMap<>();
-    private StudentDAO studentDAO = new StudentDAO();
+    private StudentDAO studentDAO;
+
+    // StudentService 클래스의 생성자에서 DBConnection 객체를 생성하고 이를 사용하여 StudentDAO 객체를 생성합니다.
+    public StudentService() {
+        DBConnection dbConnection = new DBConnection();
+        dbConnection.connect(); // 데이터베이스 연결
+        studentDAO = new StudentDAO(dbConnection); // StudentDAO 객체 생성 시 DBConnection 객체를 전달합니다.
+    }
+
     private int studentId; // 학생의 ID를 저장하기 위한 변수
 
     // 학생의 ID를 설정하는 메서드
@@ -53,7 +62,14 @@ public class StudentService {
         studentDAO.viewSubjectsAndGrades(studentId); // 학생의 ID를 전달하여 해당 학생의 과목과 성적을 조회합니다.
     }
 
+    // 강의 목록을 설정하는 메서드
     public void setLectures(Map<String, String> professorLectures) {
         this.lectures = professorLectures;
+    }
+
+    // 강의 목록을 갱신하는 메서드
+    public void refreshLectures() {
+        // 여기에 강의 목록을 갱신하는 코드를 추가하세요.
+        // 필요에 따라 데이터베이스에서 강의 목록을 다시 불러와서 lectures에 설정합니다.
     }
 }

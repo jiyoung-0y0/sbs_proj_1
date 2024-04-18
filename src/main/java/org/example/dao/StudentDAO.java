@@ -6,11 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 public class StudentDAO {
-    private DBConnection dbConnection;
+    private final DBConnection dbConnection;
 
-    public StudentDAO() {
-        dbConnection = new DBConnection();
-        dbConnection.connect(); // 데이터베이스 연결
+    public StudentDAO(DBConnection dbConnection) {
+        this.dbConnection = dbConnection;
     }
 
     // 학생이 강의를 신청하는 메서드
