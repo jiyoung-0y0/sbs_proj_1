@@ -16,72 +16,21 @@ CREATE DATABASE /*!32312 IF NOT EXISTS*/`sbs_proj_1` /*!40100 DEFAULT CHARACTER 
 
 USE `sbs_proj_1`;
 
-/*Table structure for table `course_registrations` */
+/*Table structure for table `notices` */
 
-DROP TABLE IF EXISTS `course_registrations`;
+DROP TABLE IF EXISTS `notices`;
 
-CREATE TABLE `course_registrations` (
-  `registration_id` int(11) NOT NULL AUTO_INCREMENT,
-  `student_id` int(11) DEFAULT NULL,
-  `lecture_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`registration_id`),
-  UNIQUE KEY `student_id` (`student_id`,`lecture_id`),
-  KEY `lecture_id` (`lecture_id`),
-  CONSTRAINT `course_registrations_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`student_id`),
-  CONSTRAINT `course_registrations_ibfk_2` FOREIGN KEY (`lecture_id`) REFERENCES `lectures` (`lecture_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `notices` (
+  `notice_id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(100) NOT NULL,
+  `content` text NOT NULL,
+  PRIMARY KEY (`notice_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-/*Data for the table `course_registrations` */
+/*Data for the table `notices` */
 
-/*Table structure for table `grades` */
-
-DROP TABLE IF EXISTS `grades`;
-
-CREATE TABLE `grades` (
-  `grade_id` int(11) NOT NULL AUTO_INCREMENT,
-  `lecture_id` int(11) DEFAULT NULL,
-  `student_id` int(11) DEFAULT NULL,
-  `grade` decimal(4,2) DEFAULT NULL,
-  PRIMARY KEY (`grade_id`),
-  KEY `lecture_id` (`lecture_id`),
-  KEY `student_id` (`student_id`),
-  CONSTRAINT `grades_ibfk_1` FOREIGN KEY (`lecture_id`) REFERENCES `lectures` (`lecture_id`),
-  CONSTRAINT `grades_ibfk_2` FOREIGN KEY (`student_id`) REFERENCES `students` (`student_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-/*Data for the table `grades` */
-
-/*Table structure for table `lectures` */
-
-DROP TABLE IF EXISTS `lectures`;
-
-CREATE TABLE `lectures` (
-  `lecture_id` int(11) NOT NULL AUTO_INCREMENT,
-  `lecture_name` varchar(100) NOT NULL,
-  `professor_id` int(11) DEFAULT NULL,
-  `capacity` int(11) DEFAULT 3,
-  `remaining_capacity` int(11) DEFAULT 3,
-  PRIMARY KEY (`lecture_id`),
-  KEY `professor_id` (`professor_id`),
-  CONSTRAINT `lectures_ibfk_1` FOREIGN KEY (`professor_id`) REFERENCES `professors` (`professor_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-/*Data for the table `lectures` */
-
-/*Table structure for table `professors` */
-
-DROP TABLE IF EXISTS `professors`;
-
-CREATE TABLE `professors` (
-  `professor_id` int(11) NOT NULL AUTO_INCREMENT,
-  `professor_name` varchar(100) NOT NULL,
-  `professor_username` varchar(100) NOT NULL,
-  `professor_password` varchar(100) NOT NULL,
-  PRIMARY KEY (`professor_id`),
-  UNIQUE KEY `professor_username` (`professor_username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-/*Data for the table `professors` */
+insert  into `notices`(`notice_id`,`title`,`content`) values 
+(10,'34','dfs');
 
 /*Table structure for table `students` */
 
@@ -95,69 +44,9 @@ CREATE TABLE `students` (
   `total_courses_allowed` int(11) DEFAULT 5,
   PRIMARY KEY (`student_id`),
   UNIQUE KEY `student_username` (`student_username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `students` */
-
-/* Trigger structure for table `course_registrations` */
-
-DELIMITER $$
-
-/*!50003 DROP TRIGGER*//*!50032 IF EXISTS */ /*!50003 `update_remaining_capacity` */$$
-
-/*!50003 CREATE */ /*!50017 DEFINER = 'sbsst'@'%' */ /*!50003 TRIGGER `update_remaining_capacity` BEFORE INSERT ON `course_registrations` FOR EACH ROW 
-BEGIN
-    UPDATE lectures
-    SET remaining_capacity = remaining_capacity - 1
-    WHERE lecture_id = NEW.lecture_id AND remaining_capacity > 0;
-    IF ROW_COUNT() = 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'No remaining capacity for this lecture.';
-    END IF;
-END */$$
-
-
-DELIMITER ;
-
-/* Trigger structure for table `course_registrations` */
-
-DELIMITER $$
-
-/*!50003 DROP TRIGGER*//*!50032 IF EXISTS */ /*!50003 `prevent_duplicate_registration` */$$
-
-/*!50003 CREATE */ /*!50017 DEFINER = 'sbsst'@'%' */ /*!50003 TRIGGER `prevent_duplicate_registration` BEFORE INSERT ON `course_registrations` FOR EACH ROW 
-BEGIN
-    DECLARE existing_registration_count INT;
-    SELECT COUNT(*) INTO existing_registration_count
-    FROM course_registrations
-    WHERE student_id = NEW.student_id AND lecture_id = NEW.lecture_id;
-    IF existing_registration_count > 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Student has already registered for this lecture.';
-    END IF;
-END */$$
-
-
-DELIMITER ;
-
-/* Trigger structure for table `students` */
-
-DELIMITER $$
-
-/*!50003 DROP TRIGGER*//*!50032 IF EXISTS */ /*!50003 `limit_student_registration` */$$
-
-/*!50003 CREATE */ /*!50017 DEFINER = 'sbsst'@'%' */ /*!50003 TRIGGER `limit_student_registration` BEFORE INSERT ON `students` FOR EACH ROW 
-BEGIN
-    DECLARE student_count INT;
-    SELECT COUNT(*) INTO student_count FROM students;
-    IF student_count >= 5 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Only 5 students can be registered.';
-    END IF;
-END */$$
-
-
-DELIMITER ;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

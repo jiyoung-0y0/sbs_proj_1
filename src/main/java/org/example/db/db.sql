@@ -1,8 +1,7 @@
 -- 데이터베이스 생성
-USE sbs_proj_1;
 DROP DATABASE IF EXISTS sbs_proj_1;
 CREATE DATABASE sbs_proj_1;
-
+USE sbs_proj_1;
 -- 학생 테이블 생성
 CREATE TABLE students (
     student_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -12,6 +11,7 @@ CREATE TABLE students (
     total_courses_allowed INT DEFAULT 5 -- 학생이 신청할 수 있는 총 강의 수 (기본값: 5)
 );
 
+
 -- 교수 테이블 생성
 CREATE TABLE professors (
     professor_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -19,6 +19,7 @@ CREATE TABLE professors (
     professor_username VARCHAR(100) UNIQUE NOT NULL,
     professor_password VARCHAR(100) NOT NULL
 );
+
 
 -- 강의 테이블 생성
 CREATE TABLE lectures (
@@ -49,7 +50,19 @@ CREATE TABLE course_registrations (
     FOREIGN KEY (student_id) REFERENCES students(student_id),
     FOREIGN KEY (lecture_id) REFERENCES lectures(lecture_id)
 );
+-- 공지사항 테이블 생성
+CREATE TABLE notices (
+    notice_id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    content TEXT NOT NULL
+);
 
+-- 공지사항 추가
+INSERT INTO notices (title, content) VALUES ('공지 제목', '공지 내용');
+-- 공지사항 제목을 사용하여 삭제
+DELETE FROM notices WHERE notice_id = 삭제할_공지사항_번호;
+-- 공지사항 조회
+SELECT title, content FROM notices;
 -- 학생 등록 수 제한을 위한 트리거 생성
 DELIMITER //
 CREATE TRIGGER limit_student_registration
@@ -103,3 +116,11 @@ SELECT l.lecture_name
 FROM lectures l
 JOIN course_registrations cr ON l.lecture_id = cr.lecture_id
 WHERE cr.student_id = <학생ID>; -- 여기서 <학생ID>는 실제 학생의 ID로 대체해야 합니다.
+
+SELECT * FROM students;
+SELECT * FROM professors;
+SELECT * FROM lectures;
+SELECT * FROM grades;
+SELECT * FROM course_registrations;
+-- 공지사항 조회
+SELECT * FROM notices;
