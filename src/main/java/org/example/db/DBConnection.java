@@ -21,8 +21,10 @@ public class DBConnection {
         String driverName = "com.mysql.cj.jdbc.Driver";
 
         try {
-            connection = DriverManager.getConnection(url, user, password);
+            // 드라이버 로드
             Class.forName(driverName);
+            // 연결 시도
+            connection = DriverManager.getConnection(url, user, password);
         } catch (SQLException e) {
             System.err.printf("[SQL 예외] : %s\n", e.getMessage());
         } catch (ClassNotFoundException e) {

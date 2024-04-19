@@ -2,11 +2,15 @@ package org.example.dao;
 
 import org.example.db.DBConnection;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class AdminDAO {
+
     private static final Scanner scanner = new Scanner(System.in);
     private static final DBConnection dbConnection = new DBConnection();
+    private static List<String> notices = new ArrayList<>();
 
     public static void addStudent() {
         System.out.println("새로운 학생 정보를 추가합니다.");
@@ -89,5 +93,9 @@ public class AdminDAO {
         } finally {
             dbConnection.close();
         }
+    }
+
+    public static List<String> getNotices() {
+        return new ArrayList<>(notices);
     }
 }

@@ -1,13 +1,16 @@
 package org.example.dao;
 
+import org.example.db.DBConnection;
+
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ProfessorDAO {
     private static final String DB_URL = "jdbc:mysql://localhost:3306/sbs_proj_1";
-    private static final String DB_USER = "your_username";
-    private static final String DB_PASSWORD = "your_password";
+    private static final String DB_USER = "sbsst";
+    private static final String DB_PASSWORD = "sbs123414";
+
 
     public void saveLecture(String lectureName) throws SQLException {
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {

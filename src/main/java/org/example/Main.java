@@ -36,7 +36,7 @@ public class Main {
 
         DBConnection dbConnection = new DBConnection();
         dbConnection.connect();
-        dbConnection.close(); // 명시적으로 close 호출
+
     }
 
     private static void initializeCredentials() {
@@ -69,6 +69,9 @@ public class Main {
                 scanner.nextLine();
                 if (choice < 0 || choice > 3) {
                     System.out.println("잘못된 선택입니다. 0부터 3 사이의 숫자를 입력하세요.");
+                } else if (choice == 0) {
+                    System.out.println("프로그램을 종료합니다.");
+                    return; // 종료
                 } else {
                     String username;
                     do {
@@ -102,18 +105,15 @@ public class Main {
                             }
                             break;
                     }
+                    if (!loginSuccess) {
+                        System.out.println("로그인 실패. 잘못된 사용자 이름 또는 비밀번호입니다. 다시 시도하세요.");
+                    }
                 }
             } catch (InputMismatchException e) {
                 System.out.println("잘못된 선택입니다. 숫자를 입력하세요.");
                 scanner.nextLine();
             }
-            if (choice == 0) {
-                System.out.println("프로그램을 종료합니다.");
-                return;
-            } else if (!loginSuccess) {
-                System.out.println("로그인 실패. 잘못된 사용자 이름 또는 비밀번호입니다. 다시 시도하세요.");
-            }
-        } while (!loginSuccess || choice < 0 || choice > 3);
+        } while (choice != 0 || !loginSuccess);
 
         scanner.close();
     }
