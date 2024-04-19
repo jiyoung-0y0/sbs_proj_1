@@ -3,6 +3,7 @@ package org.example.service;
 import org.example.dao.AdminDAO;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class AdminService {
@@ -78,12 +79,14 @@ public class AdminService {
 
     private static void viewNotices() {
         System.out.println("<< 공지사항 목록 >>");
-        List<String> notices = AdminDAO.getNotices();
+        List<Map<String, String>> notices = AdminDAO.getNotices();
         if (notices.isEmpty()) {
             System.out.println("등록된 공지사항이 없습니다.");
         } else {
             for (int i = 0; i < notices.size(); i++) {
-                System.out.println((i + 1) + ". " + notices.get(i));
+                Map<String, String> notice = notices.get(i);
+                System.out.println((i + 1) + ". 제목: " + notice.get("title"));
+                System.out.println("   내용: " + notice.get("content"));
             }
         }
     }

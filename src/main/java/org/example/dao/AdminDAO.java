@@ -2,9 +2,8 @@ package org.example.dao;
 
 import org.example.db.DBConnection;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.sql.ResultSet;
+import java.util.*;
 
 public class AdminDAO {
 
@@ -95,7 +94,27 @@ public class AdminDAO {
         }
     }
 
-    public static List<String> getNotices() {
-        return new ArrayList<>(notices);
+    public static List<Map<String, String>> getNotices() {
+        List<Map<String, String>> notices = new ArrayList<>();
+
+        try {
+            dbConnection.connect();
+            String selectQuery = "SELECT title, content FROM notices";
+            List<Map<String, Object>> resultSet = dbConnection.selectRows(selectQuery);
+
+            for (Map<String, Object> row : resultSet) {
+                Map<String, String> notice = new HashMap<>();
+                notice.put("title", (String) row.get("title"));
+                notice.put("content", (String) row.get("content"));
+                notices.add(notice);
+            }
+        } catch (Exception e) {
+            System.err.println("공지사항 조회 중 오류가 발생했습니다: " + e.getMessage());
+        } finally {
+            dbConnection.close();
+        }
+
+        return notices;
     }
+
 }
