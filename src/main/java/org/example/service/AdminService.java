@@ -72,9 +72,9 @@ public class AdminService {
     }
 
     private static void removeNotice() {
-        System.out.print("삭제할 공지사항 제목을 입력하세요: ");
-        String title = scanner.nextLine();
-        AdminDAO.removeNotice(title);
+        System.out.print("삭제할 공지사항 번호를 입력하세요: ");
+        int noticeNumber = Integer.parseInt(scanner.nextLine());
+        AdminDAO.removeNotice(noticeNumber);
     }
 
     private static void viewNotices() {

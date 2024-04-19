@@ -73,12 +73,19 @@ public class AdminDAO {
         }
     }
 
-    public static void removeNotice(String title) {
-        System.out.println("삭제할 공지사항의 제목을 입력하세요:");
+    public static void removeNotice(int noticeNumber) {
+        System.out.println("삭제할 공지사항의 번호를 입력하세요:");
 
         // DB에서 공지사항 정보 삭제
         try {
-            dbConnection.connect();
+            List<Map<String, String>> existingNotices = getNotices(); // 연결을 여기서 열어서 사용
+            if (noticeNumber < 1 || noticeNumber > existingNotices.size()) {
+                System.out.println("잘못된 번호입니다.");
+                return;
+            }
+            String title = existingNotices.get(noticeNumber - 1).get("title");
+
+            dbConnection.connect(); // 연결 상태 확인 후 연결
             String deleteQuery = String.format("DELETE FROM notices WHERE title = '%s'", title);
             int deletedRows = dbConnection.delete(deleteQuery);
 
@@ -116,5 +123,4 @@ public class AdminDAO {
 
         return notices;
     }
-
 }
