@@ -40,8 +40,13 @@ public class Main {
     }
 
     private static void initializeCredentials() {
-        for (int i = 1; i <= 6; i++) {
-            studentCredentials.put("s2021000" + i, "spassword" + i);
+        try {
+            DBConnection dbConnection = new DBConnection();
+            dbConnection.connect();
+            studentCredentials = dbConnection.getStudentCredentials();
+            dbConnection.disconnect();
+        } catch (SQLException e) {
+            System.out.println("학생 정보를 가져오는 중 오류가 발생했습니다: " + e.getMessage());
         }
 
         for (int i = 1; i <= 3; i++) {

@@ -13,11 +13,9 @@ public class StudentDAO {
     }
 
     // 학생이 강의를 신청하는 메서드
-    public boolean registerCourse(int studentId, String lectureName) {
-        String sql = "INSERT INTO course_registrations (student_id, lecture_id) " +
-                "SELECT ?, lecture_id FROM lectures WHERE lecture_name = ? " +
-                "AND remaining_capacity > 0";
-        int affectedRows = dbConnection.insertWithParams(sql, studentId, lectureName);
+    public boolean registerCourse(int studentId, String lectureId) {
+        String sql = "INSERT INTO course_registrations (student_id, lecture_id) VALUES (?, ?)";
+        int affectedRows = dbConnection.insertWithParams(sql, studentId, lectureId);
         return affectedRows > 0; // 삽입이 성공했으면 true 반환, 실패했으면 false 반환
     }
 
