@@ -21,14 +21,14 @@ public class DBConnection {
         String driverName = "com.mysql.cj.jdbc.Driver";
 
         try {
-            // Load the driver
+            // 드라이버 로드
             Class.forName(driverName);
-            // Attempt connection
+            // 연결 시도
             connection = DriverManager.getConnection(url, user, password);
         } catch (SQLException e) {
-            System.err.printf("[SQL Exception] : %s\n", e.getMessage());
+            System.err.printf("[SQL 예외] : %s\n", e.getMessage());
         } catch (ClassNotFoundException e) {
-            System.err.printf("[Driver Class Loading Exception] : %s\n", e.getMessage());
+            System.err.printf("[드라이버 클래스 로딩 예외] : %s\n", e.getMessage());
         }
     }
 
@@ -109,7 +109,7 @@ public class DBConnection {
                 rows.add(row);
             }
         } catch (SQLException e) {
-            System.err.printf("[SQL Exception, SQL : %s] : %s\n", sql, e.getMessage());
+            System.err.printf("[SQL 예외, SQL : %s] : %s\n", sql, e.getMessage());
             e.printStackTrace();
         }
 
@@ -124,7 +124,7 @@ public class DBConnection {
             stmt = connection.createStatement();
             affectedRows = stmt.executeUpdate(sql);
         } catch (SQLException e) {
-            System.err.printf("[SQL Exception, SQL : %s] : %s\n", sql, e.getMessage());
+            System.err.printf("[SQL 예외, SQL : %s] : %s\n", sql, e.getMessage());
         }
 
         return affectedRows;
@@ -138,7 +138,7 @@ public class DBConnection {
             stmt = connection.createStatement();
             affectedRows = stmt.executeUpdate(sql);
         } catch (SQLException e) {
-            System.err.printf("[SQL Exception, SQL : %s] : %s\n", sql, e.getMessage());
+            System.err.printf("[SQL 예외, SQL : %s] : %s\n", sql, e.getMessage());
         }
 
         return affectedRows;
@@ -157,13 +157,13 @@ public class DBConnection {
             }
 
         } catch (SQLException e) {
-            System.err.printf("[SQL Exception, SQL : %s] : %s\n", sql, e.getMessage());
+            System.err.printf("[SQL 예외, SQL : %s] : %s\n", sql, e.getMessage());
         }
 
         return id;
     }
 
-    // New method added
+    // 새로운 메서드 추가
     public int insertWithParams(String sql, int studentId, String lectureName) {
         int id = -1;
 
@@ -179,13 +179,13 @@ public class DBConnection {
             }
 
         } catch (SQLException e) {
-            System.err.printf("[SQL Exception, SQL : %s] : %s\n", sql, e.getMessage());
+            System.err.printf("[SQL 예외, SQL : %s] : %s\n", sql, e.getMessage());
         }
 
         return id;
     }
 
-    // New method added
+    // 새로운 메서드 추가
     public List<Map<String, Object>> selectRowsWithParams(String sql, int studentId) {
         List<Map<String, Object>> rows = new ArrayList<>();
 
@@ -218,21 +218,21 @@ public class DBConnection {
                 rows.add(row);
             }
         } catch (SQLException e) {
-            System.err.printf("[SQL Exception, SQL : %s] : %s\n", sql, e.getMessage());
+            System.err.printf("[SQL 예외, SQL : %s] : %s\n", sql, e.getMessage());
             e.printStackTrace();
         }
 
         return rows;
     }
 
-    // New method added
-    public void disconnect() {
+    public void close() {
         if (connection != null) {
             try {
                 connection.close();
             } catch (SQLException e) {
-                System.err.printf("[SQL Exception] : %s\n", e.getMessage());
+                System.err.printf("[SQL 예외] : %s\n", e.getMessage());
             }
         }
     }
+
 }
