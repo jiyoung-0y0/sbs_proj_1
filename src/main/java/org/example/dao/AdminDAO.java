@@ -6,7 +6,6 @@ import java.util.*;
 public class AdminDAO {
     private static final DBConnection dbConnection = new DBConnection();
 
-    // 학생 추가
     public static void addStudent() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("새로운 학생의 이름을 입력하세요: ");
@@ -19,7 +18,6 @@ public class AdminDAO {
         try {
             dbConnection.connect();
 
-            // 학번 중복 확인
             String checkQuery = String.format("SELECT * FROM students WHERE student_username = '%s'", studentId);
             List<Map<String, Object>> existingStudent = dbConnection.selectRows(checkQuery);
 
@@ -28,7 +26,6 @@ public class AdminDAO {
                 return;
             }
 
-            // 학생 추가
             String insertQuery = String.format(
                     "INSERT INTO students (student_name, student_username, student_password) VALUES ('%s', '%s', '%s')",
                     name, studentId, password
@@ -42,7 +39,6 @@ public class AdminDAO {
         }
     }
 
-    // 학생 목록 가져오기
     public static List<Map<String, String>> getStudents() {
         List<Map<String, String>> students = new ArrayList<>();
         try {
@@ -65,7 +61,6 @@ public class AdminDAO {
         return students;
     }
 
-    // 학생 삭제
     public static void removeStudent() {
         List<Map<String, String>> students = getStudents();
         if (students.isEmpty()) {
@@ -107,7 +102,6 @@ public class AdminDAO {
         }
     }
 
-    // 공지사항 목록 가져오기
     public static List<Map<String, String>> getNotices() {
         List<Map<String, String>> notices = new ArrayList<>();
         try {
@@ -130,21 +124,6 @@ public class AdminDAO {
         return notices;
     }
 
-    // 공지사항 추가
-    public static void addNotice(String title, String content) {
-        try {
-            dbConnection.connect();
-            String insertQuery = String.format("INSERT INTO notices (title, content) VALUES ('%s', '%s')", title, content);
-            dbConnection.insert(insertQuery);
-            System.out.println("공지사항이 성공적으로 추가되었습니다.");
-        } catch (Exception e) {
-            System.err.println("공지사항 추가 중 오류가 발생했습니다: " + e.getMessage());
-        } finally {
-            dbConnection.close();
-        }
-    }
-
-    // 공지사항 삭제 (인덱스로)
     public static void removeNotice(int noticeIndex) {
         List<Map<String, String>> notices = getNotices();
         if (notices.isEmpty()) {
@@ -171,6 +150,22 @@ public class AdminDAO {
             }
         } catch (Exception e) {
             System.err.println("공지사항 삭제 중 오류가 발생했습니다: " + e.getMessage());
+        } finally {
+            dbConnection.close();
+        }
+    }
+
+    public static void addNotice(String title, String content) {
+        try {
+            dbConnection.connect();
+            String insertQuery = String.format(
+                    "INSERT INTO notices (title, content) VALUES ('%s', '%s')",
+                    title, content
+            );
+            dbConnection.insert(insertQuery);
+            System.out.println("공지사항이 성공적으로 추가되었습니다.");
+        } catch (Exception e) {
+            System.err.println("공지사항 추가 중 오류가 발생했습니다: " + e.getMessage());
         } finally {
             dbConnection.close();
         }
