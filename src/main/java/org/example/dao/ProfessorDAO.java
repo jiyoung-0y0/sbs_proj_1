@@ -30,20 +30,20 @@ public class ProfessorDAO {
         }
     }
 
-    // 강의에 등록된 학생 목록 조회
+    // 강의별 학생 목록 조회
     public List<Map<String, String>> getStudentsForLecture(int lectureId) throws SQLException {
         List<Map<String, String>> studentList = new ArrayList<>();
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
-            String query = "SELECT s.student_id, s.student_name FROM students s "
-                    + "JOIN course_registrations cr ON s.student_id = cr.student_id "
-                    + "WHERE cr.lecture_id = ?";
+            String query = "SELECT s.student_username, s.student_name FROM students s " +
+                    "JOIN course_registrations cr ON s.student_id = cr.student_id " +
+                    "WHERE cr.lecture_id = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                 pstmt.setInt(1, lectureId);
                 try (ResultSet rs = pstmt.executeQuery()) {
                     while (rs.next()) {
                         Map<String, String> studentInfo = new HashMap<>();
-                        studentInfo.put("student_id", rs.getString("student_id")); // 학번
-                        studentInfo.put("student_name", rs.getString("student_name")); // 학생 이름
+                        studentInfo.put("student_username", rs.getString("student_username"));
+                        studentInfo.put("student_name", rs.getString("student_name"));
                         studentList.add(studentInfo);
                     }
                 }
@@ -52,13 +52,14 @@ public class ProfessorDAO {
         return studentList;
     }
 
-    // 학생 성적 저장
-    public void saveGrade(int lectureId, String studentId, String grade) throws SQLException {
+    // 성적 입력
+    public void saveGrade(int lectureId, String studentUsername, String grade) throws SQLException {
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
-            String query = "INSERT INTO grades (lecture_id, student_id, grade) VALUES (?, ?, ?)";
+            String query = "INSERT INTO grades (lecture_id, student_id, grade) " +
+                    "VALUES (?, (SELECT student_id FROM students WHERE student_username = ?), ?)";
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                 pstmt.setInt(1, lectureId);
-                pstmt.setString(2, studentId);
+                pstmt.setString(2, studentUsername);
                 pstmt.setString(3, grade);
                 pstmt.executeUpdate();
             }
@@ -69,14 +70,16 @@ public class ProfessorDAO {
     public Map<String, String> getGrades(int lectureId) throws SQLException {
         Map<String, String> grades = new HashMap<>();
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
-            String query = "SELECT student_id, grade FROM grades WHERE lecture_id = ?";
+            String query = "SELECT s.student_username, g.grade FROM grades g " +
+                    "JOIN students s ON g.student_id = s.student_id " +
+                    "WHERE g.lecture_id = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                 pstmt.setInt(1, lectureId);
                 try (ResultSet rs = pstmt.executeQuery()) {
                     while (rs.next()) {
-                        String studentId = rs.getString("student_id");
+                        String studentUsername = rs.getString("student_username");
                         String grade = rs.getString("grade");
-                        grades.put(studentId, grade); // 학번과 성적을 매핑
+                        grades.put(studentUsername, grade);
                     }
                 }
             }
@@ -94,7 +97,7 @@ public class ProfessorDAO {
                 while (rs.next()) {
                     int lectureId = rs.getInt("lecture_id");
                     String lectureName = rs.getString("lecture_name");
-                    lectures.put(lectureId, lectureName); // 강의 ID와 이름을 매핑
+                    lectures.put(lectureId, lectureName);
                 }
             }
         }
