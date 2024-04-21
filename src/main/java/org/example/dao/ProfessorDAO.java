@@ -1,14 +1,14 @@
 package org.example.dao;
 
 import java.sql.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ProfessorDAO {
     private static final String DB_URL = "jdbc:mysql://localhost:3306/sbs_proj_1";
     private static final String DB_USER = "sbsst";
     private static final String DB_PASSWORD = "sbs123414";
 
+    // 강의 등록
     public void saveLecture(String lectureName) throws SQLException {
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
             String query = "INSERT INTO lectures (lecture_name) VALUES (?)";
@@ -19,6 +19,7 @@ public class ProfessorDAO {
         }
     }
 
+    // 강의 삭제
     public void deleteLecture(int lectureId) throws SQLException {
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
             String query = "DELETE FROM lectures WHERE lecture_id = ?";
@@ -29,6 +30,29 @@ public class ProfessorDAO {
         }
     }
 
+    // 강의에 등록된 학생 목록 조회
+    public List<Map<String, String>> getStudentsForLecture(int lectureId) throws SQLException {
+        List<Map<String, String>> studentList = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            String query = "SELECT s.student_id, s.student_name FROM students s "
+                    + "JOIN course_registrations cr ON s.student_id = cr.student_id "
+                    + "WHERE cr.lecture_id = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+                pstmt.setInt(1, lectureId);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    while (rs.next()) {
+                        Map<String, String> studentInfo = new HashMap<>();
+                        studentInfo.put("student_id", rs.getString("student_id")); // 학번
+                        studentInfo.put("student_name", rs.getString("student_name")); // 학생 이름
+                        studentList.add(studentInfo);
+                    }
+                }
+            }
+        }
+        return studentList;
+    }
+
+    // 학생 성적 저장
     public void saveGrade(int lectureId, String studentId, String grade) throws SQLException {
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
             String query = "INSERT INTO grades (lecture_id, student_id, grade) VALUES (?, ?, ?)";
@@ -41,6 +65,7 @@ public class ProfessorDAO {
         }
     }
 
+    // 강의별 학생 성적 조회
     public Map<String, String> getGrades(int lectureId) throws SQLException {
         Map<String, String> grades = new HashMap<>();
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
@@ -51,7 +76,7 @@ public class ProfessorDAO {
                     while (rs.next()) {
                         String studentId = rs.getString("student_id");
                         String grade = rs.getString("grade");
-                        grades.put(studentId, grade);
+                        grades.put(studentId, grade); // 학번과 성적을 매핑
                     }
                 }
             }
@@ -59,17 +84,17 @@ public class ProfessorDAO {
         return grades;
     }
 
+    // 전체 강의 목록 조회
     public Map<Integer, String> getAllLectures() throws SQLException {
         Map<Integer, String> lectures = new HashMap<>();
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
             String query = "SELECT lecture_id, lecture_name FROM lectures";
-            try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-                try (ResultSet rs = pstmt.executeQuery()) {
-                    while (rs.next()) {
-                        int lectureId = rs.getInt("lecture_id");
-                        String lectureName = rs.getString("lecture_name");
-                        lectures.put(lectureId, lectureName);
-                    }
+            try (PreparedStatement pstmt = conn.prepareStatement(query);
+                 ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    int lectureId = rs.getInt("lecture_id");
+                    String lectureName = rs.getString("lecture_name");
+                    lectures.put(lectureId, lectureName); // 강의 ID와 이름을 매핑
                 }
             }
         }
