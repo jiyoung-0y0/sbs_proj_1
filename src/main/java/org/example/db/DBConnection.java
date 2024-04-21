@@ -5,6 +5,7 @@ import java.util.*;
 
 public class DBConnection {
     private Connection connection;
+
     public static String DB_NAME;
     public static String DB_USER;
     public static String DB_PASSWORD;
@@ -27,11 +28,12 @@ public class DBConnection {
 
     public int insert(String sql) {
         int generatedKey = -1;
-        try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-             ResultSet rs = pstmt.getGeneratedKeys()) {
+        try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.executeUpdate();
-            if (rs.next()) {
-                generatedKey = rs.getInt(1);
+            try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    generatedKey = rs.getInt(1);
+                }
             }
         } catch (SQLException e) {
             System.err.printf("SQL Exception, SQL: %s: %s\n", sql, e.getMessage());
