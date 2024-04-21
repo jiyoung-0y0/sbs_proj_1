@@ -1,4 +1,3 @@
-// StudentDAO.java
 package org.example.dao;
 
 import org.example.db.DBConnection;
@@ -24,17 +23,25 @@ public class StudentDAO {
     }
 
     public boolean registerCourse(String studentUsername, int lectureId) {
+        // 학생 ID를 가져오기 위해 먼저 학생 정보를 확인해야 합니다.
+        String studentCheckSQL = "SELECT student_id FROM students WHERE student_username = ?";
+        List<Map<String, Object>> studentCheckResult = dbConnection.selectRowsWithParams(studentCheckSQL, new Object[]{studentUsername});
+
+        if (studentCheckResult.isEmpty()) {
+            throw new IllegalArgumentException("학생이 존재하지 않습니다: " + studentUsername);
+        }
+
+        int studentId = (Integer) studentCheckResult.get(0).get("student_id");
+
         String sql = "INSERT INTO course_registrations (student_id, lecture_id) VALUES (?, ?)";
-        int affectedRows = dbConnection.insertWithParams(sql, new Object[]{studentUsername, lectureId});
+        int affectedRows = dbConnection.insertWithParams(sql, new Object[]{studentId, lectureId});  // 수정된 부분
 
         return affectedRows > 0;
     }
 
-
-
     public List<Map<String, Object>> viewSubjectsAndGrades(String studentUsername) {
         String sql = "SELECT l.lecture_name, g.grade FROM lectures l " +
-                "JOIN grades g ON l.lecture_id " +
+                "JOIN grades g ON l.lecture_id = l.lecture_id " +
                 "WHERE g.student_id = ?";
         List<Map<String, Object>> result = dbConnection.selectRowsWithParams(sql, new Object[]{studentUsername});
 
