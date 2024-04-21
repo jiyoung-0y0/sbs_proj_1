@@ -22,8 +22,22 @@ public class ProfessorDAO {
     // 강의 삭제
     public void deleteLecture(int lectureId) throws SQLException {
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
-            String query = "DELETE FROM lectures WHERE lecture_id = ?";
-            try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            // 먼저 course_registrations 및 grades에서 관련 레코드를 삭제
+            String deleteRegistrations = "DELETE FROM course_registrations WHERE lecture_id = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(deleteRegistrations)) {
+                pstmt.setInt(1, lectureId);
+                pstmt.executeUpdate();
+            }
+
+            String deleteGrades = "DELETE FROM grades WHERE lecture_id = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(deleteGrades)) {
+                pstmt.setInt(1, lectureId);
+                pstmt.executeUpdate();
+            }
+
+            // 그 후 lectures에서 삭제
+            String deleteLecture = "DELETE FROM lectures WHERE lecture_id = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(deleteLecture)) {
                 pstmt.setInt(1, lectureId);
                 pstmt.executeUpdate();
             }
@@ -34,7 +48,8 @@ public class ProfessorDAO {
     public List<Map<String, String>> getStudentsForLecture(int lectureId) throws SQLException {
         List<Map<String, String>> studentList = new ArrayList<>();
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
-            String query = "SELECT s.student_username, s.student_name FROM students s " +
+            String query = "SELECT s.student_username, s.student_name " +
+                    "FROM students s " +
                     "JOIN course_registrations cr ON s.student_id = cr.student_id " +
                     "WHERE cr.lecture_id = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
