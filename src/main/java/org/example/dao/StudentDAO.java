@@ -10,9 +10,9 @@ public class StudentDAO {
         this.dbConnection = dbConnection;
     }
 
-    public boolean authenticateStudent(int studentId, String password) {
-        String sql = "SELECT student_password FROM students WHERE student_id = ?";
-        List<Map<String, Object>> result = dbConnection.selectRowsWithParams(sql, new Object[]{studentId});
+    public boolean authenticateStudent(String studentUsername, String password) {
+        String sql = "SELECT student_password FROM students WHERE student_username = ?";
+        List<Map<String, Object>> result = dbConnection.selectRowsWithParams(sql, new Object[]{studentUsername});
 
         if (result.isEmpty()) {
             return false;
@@ -22,27 +22,27 @@ public class StudentDAO {
         return storedPassword.equals(password);
     }
 
-    public boolean registerCourse(int studentId, int lectureId) {
+    public boolean registerCourse(String studentUsername, int lectureId) {
         String sql = "INSERT INTO course_registrations (student_id, lecture_id) VALUES (?, ?)";
-        int affectedRows = dbConnection.insertWithParams(sql, new Object[]{studentId, lectureId});
+        int affectedRows = dbConnection.insertWithParams(sql, new Object[]{studentUsername, lectureId});
 
         return affectedRows > 0;
     }
 
-    public List<Map<String, Object>> viewTimetable(int studentId) {
+    public List<Map<String, Object>> viewTimetable(String studentUsername) {
         String sql = "SELECT l.lecture_name FROM lectures l " +
                 "JOIN course_registrations cr ON l.lecture_id = cr.lecture_id " +
                 "WHERE cr.student_id = ?";
-        List<Map<String, Object>> result = dbConnection.selectRowsWithParams(sql, new Object[]{studentId});
+        List<Map<String, Object>> result = dbConnection.selectRowsWithParams(sql, new Object[]{studentUsername});
 
         return result;
     }
 
-    public List<Map<String, Object>> viewSubjectsAndGrades(int studentId) {
+    public List<Map<String, Object>> viewSubjectsAndGrades(String studentUsername) {
         String sql = "SELECT l.lecture_name, g.grade FROM lectures l " +
                 "JOIN grades g ON l.lecture_id = g.lecture_id " +
                 "WHERE g.student_id = ?";
-        List<Map<String, Object>> result = dbConnection.selectRowsWithParams(sql, new Object[]{studentId});
+        List<Map<String, Object>> result = dbConnection.selectRowsWithParams(sql, new Object[]{studentUsername});
 
         return result;
     }

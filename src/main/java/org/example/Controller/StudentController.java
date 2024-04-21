@@ -6,22 +6,22 @@ import java.util.Scanner;
 
 public class StudentController {
     private final StudentService studentService;
-    private String studentId; // 로그인한 학생의 ID를 저장할 변수
+    private String studentUsername; // 로그인한 학생의 학번
 
     public StudentController() {
         this.studentService = new StudentService(); // StudentService 객체 생성
     }
 
-    public void showPage(String studentId) {
-        this.studentId = studentId; // 로그인한 학생의 ID 설정
-        studentService.setStudentId(studentId); // StudentService에 학생 ID 설정
+    public void showPage(String studentUsername) {
+        this.studentUsername = studentUsername; // 로그인한 학생의 학번 설정
+        studentService.setStudentUsername(studentUsername); // StudentService에 학생 학번 설정
 
-        System.out.println("학생 페이지로 이동합니다. 환영합니다, " + studentId + "님!");
+        System.out.println("학생 페이지로 이동합니다. 환영합니다, " + studentUsername + "님!");
 
         Scanner scanner = new Scanner(System.in);
         int choice;
 
-        do {
+        while (true) { // 학생이 로그아웃할 때까지 반복
             System.out.println("0. 로그아웃");
             System.out.println("1. 강의 신청");
             System.out.println("2. 시간표 확인");
@@ -51,6 +51,6 @@ public class StudentController {
                 default:
                     System.out.println("잘못된 선택입니다. 다시 선택하세요.");
             }
-        } while (true); // 학생이 로그아웃할 때까지 무한 루프
+        }
     }
 }

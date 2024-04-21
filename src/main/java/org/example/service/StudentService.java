@@ -9,7 +9,7 @@ import java.util.Scanner;
 
 public class StudentService {
     private final StudentDAO studentDAO;
-    private String studentId;
+    private String studentUsername;
 
     public StudentService() {
         DBConnection dbConnection = new DBConnection();
@@ -17,12 +17,12 @@ public class StudentService {
         this.studentDAO = new StudentDAO(dbConnection);
     }
 
-    public boolean authenticateStudent(String studentId, String password) {
-        return studentDAO.authenticateStudent(Integer.parseInt(studentId), password); // 여기서 String -> int로 변환
+    public boolean authenticateStudent(String studentUsername, String password) {
+        return studentDAO.authenticateStudent(studentUsername, password); // 여기서 학번을 문자열로 처리
     }
 
-    public void setStudentId(String studentId) {
-        this.studentId = studentId;
+    public void setStudentUsername(String studentUsername) {
+        this.studentUsername = studentUsername;
     }
 
     public void registerLecture() {
@@ -45,13 +45,13 @@ public class StudentService {
         int lectureId = -1; // 기본값 설정
         for (Map<String, Object> lecture : availableLectures) {
             if (selectedLecture.equals(lecture.get("lecture_name"))) {
-                lectureId = (int) lecture.get("lecture_id"); // 강의 ID를 int로 변환
+                lectureId = (int) lecture.get("lecture_id"); // 강의 ID
                 break;
             }
         }
 
-        if (lectureId != -1) { // lectureId가 유효한 값인지 확인
-            boolean success = studentDAO.registerCourse(Integer.parseInt(studentId), lectureId);
+        if (lectureId != -1) { // 유효한 ID인지 확인
+            boolean success = studentDAO.registerCourse(studentUsername, lectureId);
             if (success) {
                 System.out.println(selectedLecture + " 강의를 신청했습니다.");
             } else {
@@ -63,7 +63,7 @@ public class StudentService {
     }
 
     public void viewTimetable() {
-        List<Map<String, Object>> timetable = studentDAO.viewTimetable(Integer.parseInt(studentId));
+        List<Map<String, Object>> timetable = studentDAO.viewTimetable(studentUsername);
         System.out.println("시간표:");
         for (Map<String, Object> entry : timetable) {
             System.out.println(" - " + entry.get("lecture_name"));
@@ -71,7 +71,7 @@ public class StudentService {
     }
 
     public void viewSubjectsAndGrades() {
-        List<Map<String, Object>> subjectsAndGrades = studentDAO.viewSubjectsAndGrades(Integer.parseInt(studentId));
+        List<Map<String, Object>> subjectsAndGrades = studentDAO.viewSubjectsAndGrades(studentUsername);
         System.out.println("과목 및 성적:");
         for (Map<String, Object> entry : subjectsAndGrades) {
             System.out.println(" - " + entry.get("lecture_name") + ": " + entry.get("grade"));
