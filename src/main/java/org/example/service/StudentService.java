@@ -57,15 +57,7 @@ public class StudentService {
                 System.out.println("강의 신청에 실패했습니다.");
             }
         } else {
-            System.out.println("해당 강의가 존재하지 않습니다.");
-        }
-    }
-
-    public void viewTimetable() {
-        List<Map<String, Object>> timetable = studentDAO.viewTimetable(studentUsername);
-        System.out.println("시간표:");
-        for (Map<String, Object> entry : timetable) {
-            System.out.println(" - " + entry.get("lecture_name"));
+            System.out.println("해당 강의를 찾을 수 없습니다.");
         }
     }
 

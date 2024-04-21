@@ -22,12 +22,11 @@ public class StudentController {
         while (true) { // 학생이 로그아웃할 때까지 반복
             System.out.println("0. 로그아웃");
             System.out.println("1. 강의 신청");
-            System.out.println("2. 시간표 확인");
-            System.out.println("3. 과목 및 성적 확인");
-            System.out.println("4. 공지 확인");
+            System.out.println("2. 과목 및 성적 확인");
+            System.out.println("3. 공지 확인");
             System.out.print("선택: ");
             choice = scanner.nextInt();
-            scanner.nextLine(); // 엔터키 소비
+            scanner.nextLine(); // 엔터키 소모
 
             switch (choice) {
                 case 0: // 로그아웃
@@ -37,13 +36,10 @@ public class StudentController {
                 case 1: // 강의 신청
                     studentService.registerLecture();
                     break;
-                case 2: // 시간표 확인
-                    studentService.viewTimetable();
-                    break;
-                case 3: // 과목 및 성적 확인
+                case 2: // 과목 및 성적 확인
                     studentService.viewSubjectsAndGrades();
                     break;
-                case 4: // 공지 확인
+                case 3: // 공지 확인
                     studentService.viewNotices(); // 공지 확인 기능 호출
                     break;
                 default:

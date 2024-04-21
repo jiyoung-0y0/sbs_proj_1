@@ -30,14 +30,7 @@ public class StudentDAO {
         return affectedRows > 0;
     }
 
-    public List<Map<String, Object>> viewTimetable(String studentUsername) {
-        String sql = "SELECT l.lecture_name FROM lectures l " +
-                "JOIN course_registrations cr ON l.lecture_id = cr.lecture_id " +
-                "WHERE cr.student_id = ?";
-        List<Map<String, Object>> result = dbConnection.selectRowsWithParams(sql, new Object[]{studentUsername});
 
-        return result;
-    }
 
     public List<Map<String, Object>> viewSubjectsAndGrades(String studentUsername) {
         String sql = "SELECT l.lecture_name, g.grade FROM lectures l " +
