@@ -3,73 +3,86 @@ package org.example.service;
 import org.example.dao.StudentDAO;
 import org.example.db.DBConnection;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
 public class StudentService {
-    private Map<String, String> lectures = new HashMap<>();
-    private StudentDAO studentDAO;
+    private final StudentDAO studentDAO;
+    private String studentId;
 
-    // StudentService 클래스의 생성자에서 DBConnection 객체를 생성하고 이를 사용하여 StudentDAO 객체를 생성합니다.
     public StudentService() {
         DBConnection dbConnection = new DBConnection();
-        dbConnection.connect(); // 데이터베이스 연결
-        studentDAO = new StudentDAO(dbConnection); // StudentDAO 객체 생성 시 DBConnection 객체를 전달합니다.
+        dbConnection.connect();
+        this.studentDAO = new StudentDAO(dbConnection);
     }
 
-    private int studentId; // 학생의 ID를 저장하기 위한 변수
+    public boolean authenticateStudent(String studentId, String password) {
+        return studentDAO.authenticateStudent(Integer.parseInt(studentId), password); // 여기서 String -> int로 변환
+    }
 
-    // 학생의 ID를 설정하는 메서드
-    public void setStudentId(int studentId) {
+    public void setStudentId(String studentId) {
         this.studentId = studentId;
     }
 
     public void registerLecture() {
-        if (lectures.isEmpty()) {
-            System.out.println("교수가 아직 강의를 등록하지 않았습니다. 신청할 수 있는 강의가 없습니다.");
+        List<Map<String, Object>> availableLectures = studentDAO.getAvailableLectures();
+
+        if (availableLectures.isEmpty()) {
+            System.out.println("신청할 수 있는 강의가 없습니다.");
             return;
         }
 
-        // 여기에 강의를 신청하는 기능을 구현합니다.
         Scanner scanner = new Scanner(System.in);
         System.out.println("신청할 강의를 선택하세요:");
-        for (String lecture : lectures.keySet()) {
-            System.out.println(lecture);
+        for (Map<String, Object> lecture : availableLectures) {
+            System.out.println(lecture.get("lecture_name"));
         }
+
         System.out.print("강의 이름을 입력하세요: ");
         String selectedLecture = scanner.nextLine();
 
-        if (lectures.containsKey(selectedLecture)) {
-            System.out.println(selectedLecture + " 강의를 신청했습니다.");
-            // 여기서 studentId와 lectureId를 적절히 지정해야 합니다.
-            String lectureId = lectures.get(selectedLecture); // 강의 이름에 해당하는 강의 ID를 가져옵니다.
-            studentDAO.registerCourse(studentId, lectureId); // 학생이 해당 강의를 신청합니다.
+        int lectureId = -1; // 기본값 설정
+        for (Map<String, Object> lecture : availableLectures) {
+            if (selectedLecture.equals(lecture.get("lecture_name"))) {
+                lectureId = (int) lecture.get("lecture_id"); // 강의 ID를 int로 변환
+                break;
+            }
+        }
+
+        if (lectureId != -1) { // lectureId가 유효한 값인지 확인
+            boolean success = studentDAO.registerCourse(Integer.parseInt(studentId), lectureId);
+            if (success) {
+                System.out.println(selectedLecture + " 강의를 신청했습니다.");
+            } else {
+                System.out.println("강의 신청에 실패했습니다.");
+            }
         } else {
             System.out.println("해당 강의가 존재하지 않습니다.");
         }
     }
 
     public void viewTimetable() {
-        // 여기에 시간표 확인 기능을 구현합니다.
-        System.out.println("시간표를 확인합니다.");
-        studentDAO.viewTimetable(studentId); // 학생의 ID를 전달하여 해당 학생의 시간표를 조회합니다.
+        List<Map<String, Object>> timetable = studentDAO.viewTimetable(Integer.parseInt(studentId));
+        System.out.println("시간표:");
+        for (Map<String, Object> entry : timetable) {
+            System.out.println(" - " + entry.get("lecture_name"));
+        }
     }
 
     public void viewSubjectsAndGrades() {
-        // 여기에 과목과 성적 확인 기능을 구현합니다.
-        System.out.println("과목과 성적을 확인합니다.");
-        studentDAO.viewSubjectsAndGrades(studentId); // 학생의 ID를 전달하여 해당 학생의 과목과 성적을 조회합니다.
+        List<Map<String, Object>> subjectsAndGrades = studentDAO.viewSubjectsAndGrades(Integer.parseInt(studentId));
+        System.out.println("과목 및 성적:");
+        for (Map<String, Object> entry : subjectsAndGrades) {
+            System.out.println(" - " + entry.get("lecture_name") + ": " + entry.get("grade"));
+        }
     }
 
-    // 강의 목록을 설정하는 메서드
-    public void setLectures(Map<String, String> professorLectures) {
-        this.lectures = professorLectures;
-    }
-
-    // 강의 목록을 갱신하는 메서드
     public void refreshLectures() {
-        // 여기에 강의 목록을 갱신하는 코드를 추가하세요.
-        // 필요에 따라 데이터베이스에서 강의 목록을 다시 불러와서 lectures에 설정합니다.
+        List<Map<String, Object>> availableLectures = studentDAO.getAvailableLectures();
+        System.out.println("강의 목록이 갱신되었습니다.");
+        for (Map<String, Object> lecture : availableLectures) {
+            System.out.println(" - " + lecture.get("lecture_name"));
+        }
     }
 }

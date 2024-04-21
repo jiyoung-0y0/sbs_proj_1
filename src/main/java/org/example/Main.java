@@ -3,17 +3,15 @@ package org.example;
 import org.example.Controller.AdminController;
 import org.example.Controller.ProfessorController;
 import org.example.Controller.StudentController;
+import org.example.service.StudentService;
 import org.example.db.DBConnection;
 
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
-
-    private static Map<String, String> studentCredentials = new HashMap<>();
     private static Map<String, String> professorCredentials = new HashMap<>();
     private static Map<String, String> adminCredentials = new HashMap<>();
 
@@ -21,7 +19,6 @@ public class Main {
         try {
             initializeDB();
             initializeCredentials();
-            ProfessorController.setStudentCredentials(studentCredentials);
             showLoginPage();
         } catch (SQLException e) {
             System.out.println("DB 연결 중 오류가 발생했습니다: " + e.getMessage());
@@ -36,19 +33,15 @@ public class Main {
 
         DBConnection dbConnection = new DBConnection();
         dbConnection.connect();
-
     }
 
     private static void initializeCredentials() {
-        for (int i = 1; i <= 6; i++) {
-            studentCredentials.put("s2021000" + i, "spassword" + i);
-        }
+        adminCredentials.put("admin", "adminpassword"); // 관리자 로그인 정보
 
+        // 교수 로그인 정보
         for (int i = 1; i <= 3; i++) {
             professorCredentials.put("p1000" + i, "ppassword" + i);
         }
-
-        adminCredentials.put("admin", "adminpassword");
     }
 
     public static void showLoginPage() {
@@ -56,72 +49,69 @@ public class Main {
 
         boolean loginSuccess = false;
         int choice;
+
         do {
-            choice = -1; // 초기화를 -1로 변경하여 잘못된 입력을 감지할 수 있도록 함
-            System.out.println("사용자 유형을 선택하세요: ");
-            System.out.println("1. 학생");
-            System.out.println("2. 교수");
-            System.out.println("3. 관리자");
-            System.out.println("0. 종료");
-            System.out.print("선택: ");
             try {
+                System.out.println("사용자 유형을 선택하세요:");
+                System.out.println("1. 학생");
+                System.out.println("2. 교수");
+                System.out.println("3. 관리자");
+                System.out.println("0. 종료");
+                System.out.print("선택: ");
                 choice = scanner.nextInt();
-                scanner.nextLine();
+                scanner.nextLine(); // 엔터키 소모
+
                 if (choice < 0 || choice > 3) {
                     System.out.println("잘못된 선택입니다. 0부터 3 사이의 숫자를 입력하세요.");
-                } else if (choice == 0) {
-                    System.out.println("프로그램을 종료합니다.");
-                    return; // 종료
-                } else {
-                    String username;
-                    do {
-                        System.out.print("사용자 이름을 입력하세요: ");
-                        username = scanner.nextLine();
-                    } while (!validateUsername(username));
-
-                    System.out.print("비밀번호를 입력하세요: ");
-                    String password = scanner.nextLine();
-
-                    switch (choice) {
-                        case 1:
-                            StudentController studentController = new StudentController();
-                            loginSuccess = login(username, password, studentCredentials);
-                            if (loginSuccess) {
-                                studentController.showPage(username);
-                            }
-                            break;
-                        case 2:
-                            ProfessorController professorController = new ProfessorController();
-                            loginSuccess = login(username, password, professorCredentials);
-                            if (loginSuccess) {
-                                professorController.showPage(username);
-                            }
-                            break;
-                        case 3:
-                            AdminController adminController = new AdminController();
-                            loginSuccess = login(username, password, adminCredentials);
-                            if (loginSuccess) {
-                                adminController.showPage(username);
-                            }
-                            break;
-                    }
-                    if (!loginSuccess) {
-                        System.out.println("로그인 실패. 잘못된 사용자 이름 또는 비밀번호입니다. 다시 시도하세요.");
-                    }
+                    continue;
                 }
-            } catch (InputMismatchException e) {
-                System.out.println("잘못된 선택입니다. 숫자를 입력하세요.");
-                scanner.nextLine();
+
+                if (choice == 0) {
+                    System.out.println("프로그램을 종료합니다.");
+                    break;
+                }
+
+                System.out.print("사용자 이름을 입력하세요: ");
+                String studentId = scanner.nextLine(); // 사용자 ID 입력
+
+                System.out.print("비밀번호를 입력하세요: ");
+                String password = scanner.nextLine(); // 비밀번호 입력
+
+                switch (choice) {
+                    case 1: // 학생 로그인
+                        StudentService studentService = new StudentService();
+                        boolean isAuthenticated = studentService.authenticateStudent(studentId, password); // 학생 인증
+                        if (isAuthenticated) {
+                            StudentController studentController = new StudentController();
+                            studentController.showPage(studentId); // 학생 페이지로 이동
+                        } else {
+                            System.out.println("로그인 실패. 사용자 이름 또는 비밀번호가 잘못되었습니다.");
+                        }
+                        break;
+
+                    case 2: // 교수 로그인
+                        if (login(studentId, password, professorCredentials)) {
+                            ProfessorController professorController = new ProfessorController();
+                            professorController.showPage(studentId); // 교수 페이지로 이동
+                        } else {
+                            System.out.println("로그인 실패. 사용자 이름 또는 비밀번호가 잘못되었습니다.");
+                        }
+                        break;
+
+                    case 3: // 관리자 로그인
+                        if (login(studentId, password, adminCredentials)) {
+                            AdminController adminController = new AdminController();
+                            adminController.showPage(studentId); // 관리자 페이지로 이동
+                        } else {
+                            System.out.println("로그인 실패. 사용자 이름 또는 비밀번호가 잘못되었습니다.");
+                        }
+                        break;
+                }
+            } catch (Exception e) {
+                System.out.println("잘못된 입력입니다. 다시 시도하십시오.");
+                scanner.nextLine(); // 남아있는 엔터키 또는 잘못된 입력 소모
             }
-        } while (choice != 0 || !loginSuccess);
-
-        scanner.close();
-    }
-
-    private static boolean validateUsername(String username) {
-        return studentCredentials.containsKey(username) ||
-                professorCredentials.containsKey(username) ||
-                adminCredentials.containsKey(username);
+        } while (true);
     }
 
     private static boolean login(String username, String password, Map<String, String> credentials) {

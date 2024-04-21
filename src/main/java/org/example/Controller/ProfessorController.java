@@ -44,11 +44,11 @@ public class ProfessorController {
                     break;
                 case 5:
                     System.out.println("로그아웃합니다.");
-                    Main.showLoginPage(); // 로그아웃 시 메인 페이지로 이동
-                    break;
+                    Main.showLoginPage(); // 메인 페이지로 돌아가기
+                    return; // 루프를 벗어나야 함
                 default:
                     System.out.println("잘못된 선택입니다. 다시 선택하세요.");
             }
-        } while (choice != 5);
+        } while (choice != 5); // '5'는 로그아웃을 의미
     }
 }

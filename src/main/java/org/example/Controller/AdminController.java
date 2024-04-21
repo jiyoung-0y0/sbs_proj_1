@@ -28,11 +28,11 @@ public class AdminController {
                     break;
                 case 3:
                     System.out.println("로그아웃합니다.");
-                    Main.showLoginPage();
-                    return;
+                    Main.showLoginPage(); // 메인 페이지로 돌아가기
+                    return; // 루프를 벗어나기
                 default:
                     System.out.println("잘못된 선택입니다. 다시 선택하세요.");
             }
-        } while (true);
+        } while (true); // 루프가 무한 반복되지 않게 해야 함
     }
 }

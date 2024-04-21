@@ -1,10 +1,7 @@
 package org.example.db;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DBConnection {
     private Connection connection;
@@ -14,16 +11,13 @@ public class DBConnection {
     public static int DB_PORT;
 
     public void connect() {
-        String url = "jdbc:mysql://localhost:" + DB_PORT + "/" + DB_NAME
-                + "?serverTimezone=Asia/Seoul&useOldAliasMetadataBehavior=true";
+        String url = "jdbc:mysql://localhost:" + DB_PORT + "/" + DB_NAME + "?serverTimezone=Asia/Seoul";
         String user = DB_USER;
         String password = DB_PASSWORD;
         String driverName = "com.mysql.cj.jdbc.Driver";
 
         try {
-            // 드라이버 로드
             Class.forName(driverName);
-            // 연결 시도
             connection = DriverManager.getConnection(url, user, password);
         } catch (SQLException e) {
             System.err.printf("[SQL 예외] : %s\n", e.getMessage());
@@ -32,50 +26,80 @@ public class DBConnection {
         }
     }
 
-    public int selectRowIntValue(String sql) {
-        Map<String, Object> row = selectRow(sql);
+    public int insert(String sql) {
+        int generatedKey = -1;
 
-        for (String key : row.keySet()) {
-            return (int) row.get(key);
-        }
+        try {
+            PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            pstmt.executeUpdate();
+            ResultSet rs = pstmt.getGeneratedKeys();
 
-        return -1;
-    }
-
-    public String selectRowStringValue(String sql) {
-        Map<String, Object> row = selectRow(sql);
-
-        for (String key : row.keySet()) {
-            return (String) row.get(key);
-        }
-
-        return "";
-    }
-
-    public Boolean selectRowBooleanValue(String sql) {
-        Map<String, Object> row = selectRow(sql);
-
-        for (String key : row.keySet()) {
-            if (row.get(key) instanceof String) {
-                return ((String) row.get(key)).equals("1");
-            } else if (row.get(key) instanceof Integer) {
-                return ((int) row.get(key)) == 1;
-            } else if (row.get(key) instanceof Boolean) {
-                return ((boolean) row.get(key));
+            if (rs.next()) {
+                generatedKey = rs.getInt(1);
             }
+
+            rs.close();
+            pstmt.close();
+        } catch (SQLException e) {
+            System.err.printf("[SQL 예외, SQL : %s] : %s\n", sql, e.getMessage());
         }
 
-        return false;
+        return generatedKey;
     }
 
-    public Map<String, Object> selectRow(String sql) {
-        List<Map<String, Object>> rows = selectRows(sql);
+    public int insertWithParams(String sql, Object[] params) {
+        int id = -1;
 
-        if (rows.size() == 0) {
-            return new HashMap<String, Object>();
+        try {
+            PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            for (int i = 0; i < params.length; i++) {
+                pstmt.setObject(i + 1, params[i]);
+            }
+            pstmt.executeUpdate();
+            ResultSet rs = pstmt.getGeneratedKeys();
+
+            if (rs.next()) {
+                id = rs.getInt(1);
+            }
+
+            rs.close();
+            pstmt.close();
+        } catch (SQLException e) {
+            System.err.printf("[SQL 예외, SQL : %s] : %s\n", sql, e.getMessage());
         }
 
-        return rows.get(0);
+        return id;
+    }
+
+    public List<Map<String, Object>> selectRowsWithParams(String sql, Object[] params) {
+        List<Map<String, Object>> rows = new ArrayList<>();
+
+        try {
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+            for (int i = 0; i < params.length; i++) {
+                pstmt.setObject(i + 1, params[i]);
+            }
+            ResultSet rs = pstmt.executeQuery();
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnCount = metaData.getColumnCount();
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
+                    String columnName = metaData.getColumnName(columnIndex);
+                    Object value = rs.getObject(columnName);
+                    row.put(columnName, value);
+                }
+                rows.add(row);
+            }
+
+            rs.close();
+            pstmt.close();
+        } catch (SQLException e) {
+            System.err.printf("[SQL 예외, SQL : %s] : %s\n", sql, e.getMessage());
+        }
+
+        return rows;
     }
 
     public List<Map<String, Object>> selectRows(String sql) {
@@ -85,32 +109,22 @@ public class DBConnection {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
             ResultSetMetaData metaData = rs.getMetaData();
-            int columnSize = metaData.getColumnCount();
+            int columnCount = metaData.getColumnCount();
 
             while (rs.next()) {
                 Map<String, Object> row = new HashMap<>();
-
-                for (int columnIndex = 0; columnIndex < columnSize; columnIndex++) {
-                    String columnName = metaData.getColumnName(columnIndex + 1);
+                for (int columnIndex = 1; columnIndex <= columnCount; columnCount++) {
+                    String columnName = metaData.getColumnName(columnIndex);
                     Object value = rs.getObject(columnName);
-
-                    if (value instanceof Long) {
-                        int numValue = (int) (long) value;
-                        row.put(columnName, numValue);
-                    } else if (value instanceof Timestamp) {
-                        String dateValue = value.toString();
-                        dateValue = dateValue.substring(0, dateValue.length() - 2);
-                        row.put(columnName, dateValue);
-                    } else {
-                        row.put(columnName, value);
-                    }
+                    row.put(columnName, value);
                 }
-
                 rows.add(row);
             }
+
+            rs.close();
+            stmt.close();
         } catch (SQLException e) {
             System.err.printf("[SQL 예외, SQL : %s] : %s\n", sql, e.getMessage());
-            e.printStackTrace();
         }
 
         return rows;
@@ -119,10 +133,10 @@ public class DBConnection {
     public int delete(String sql) {
         int affectedRows = 0;
 
-        Statement stmt;
         try {
-            stmt = connection.createStatement();
+            Statement stmt = connection.createStatement();
             affectedRows = stmt.executeUpdate(sql);
+            stmt.close();
         } catch (SQLException e) {
             System.err.printf("[SQL 예외, SQL : %s] : %s\n", sql, e.getMessage());
         }
@@ -133,96 +147,15 @@ public class DBConnection {
     public int update(String sql) {
         int affectedRows = 0;
 
-        Statement stmt;
         try {
-            stmt = connection.createStatement();
+            Statement stmt = connection.createStatement();
             affectedRows = stmt.executeUpdate(sql);
+            stmt.close();
         } catch (SQLException e) {
             System.err.printf("[SQL 예외, SQL : %s] : %s\n", sql, e.getMessage());
         }
 
         return affectedRows;
-    }
-
-    public int insert(String sql) {
-        int id = -1;
-
-        try {
-            Statement stmt = connection.createStatement();
-            stmt.execute(sql, Statement.RETURN_GENERATED_KEYS);
-            ResultSet rs = stmt.getGeneratedKeys();
-
-            if (rs.next()) {
-                id = rs.getInt(1);
-            }
-
-        } catch (SQLException e) {
-            System.err.printf("[SQL 예외, SQL : %s] : %s\n", sql, e.getMessage());
-        }
-
-        return id;
-    }
-
-    // 새로운 메서드 추가
-    public int insertWithParams(String sql, int studentId, String lectureName) {
-        int id = -1;
-
-        try {
-            PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            pstmt.setInt(1, studentId);
-            pstmt.setString(2, lectureName);
-            pstmt.executeUpdate();
-            ResultSet rs = pstmt.getGeneratedKeys();
-
-            if (rs.next()) {
-                id = rs.getInt(1);
-            }
-
-        } catch (SQLException e) {
-            System.err.printf("[SQL 예외, SQL : %s] : %s\n", sql, e.getMessage());
-        }
-
-        return id;
-    }
-
-    // 새로운 메서드 추가
-    public List<Map<String, Object>> selectRowsWithParams(String sql, int studentId) {
-        List<Map<String, Object>> rows = new ArrayList<>();
-
-        try {
-            PreparedStatement pstmt = connection.prepareStatement(sql);
-            pstmt.setInt(1, studentId);
-            ResultSet rs = pstmt.executeQuery();
-            ResultSetMetaData metaData = rs.getMetaData();
-            int columnSize = metaData.getColumnCount();
-
-            while (rs.next()) {
-                Map<String, Object> row = new HashMap<>();
-
-                for (int columnIndex = 0; columnIndex < columnSize; columnIndex++) {
-                    String columnName = metaData.getColumnName(columnIndex + 1);
-                    Object value = rs.getObject(columnName);
-
-                    if (value instanceof Long) {
-                        int numValue = (int) (long) value;
-                        row.put(columnName, numValue);
-                    } else if (value instanceof Timestamp) {
-                        String dateValue = value.toString();
-                        dateValue = dateValue.substring(0, dateValue.length() - 2);
-                        row.put(columnName, dateValue);
-                    } else {
-                        row.put(columnName, value);
-                    }
-                }
-
-                rows.add(row);
-            }
-        } catch (SQLException e) {
-            System.err.printf("[SQL 예외, SQL : %s] : %s\n", sql, e.getMessage());
-            e.printStackTrace();
-        }
-
-        return rows;
     }
 
     public void close() {
@@ -234,5 +167,4 @@ public class DBConnection {
             }
         }
     }
-
 }
