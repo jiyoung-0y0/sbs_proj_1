@@ -1,3 +1,4 @@
+// StudentDAO.java
 package org.example.dao;
 
 import org.example.db.DBConnection;
@@ -40,7 +41,7 @@ public class StudentDAO {
 
     public List<Map<String, Object>> viewSubjectsAndGrades(String studentUsername) {
         String sql = "SELECT l.lecture_name, g.grade FROM lectures l " +
-                "JOIN grades g ON l.lecture_id = g.lecture_id " +
+                "JOIN grades g ON l.lecture_id " +
                 "WHERE g.student_id = ?";
         List<Map<String, Object>> result = dbConnection.selectRowsWithParams(sql, new Object[]{studentUsername});
 
@@ -49,6 +50,13 @@ public class StudentDAO {
 
     public List<Map<String, Object>> getAvailableLectures() {
         String sql = "SELECT lecture_id, lecture_name FROM lectures";
+        List<Map<String, Object>> result = dbConnection.selectRows(sql);
+
+        return result;
+    }
+
+    public List<Map<String, Object>> getNotices() {
+        String sql = "SELECT title, content FROM notices";
         List<Map<String, Object>> result = dbConnection.selectRows(sql);
 
         return result;
