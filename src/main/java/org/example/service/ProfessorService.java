@@ -3,9 +3,8 @@ package org.example.service;
 import org.example.dao.ProfessorDAO;
 
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
+import java.util.InputMismatchException;
 
 public class ProfessorService {
     private final ProfessorDAO professorDAO;
@@ -40,8 +39,22 @@ public class ProfessorService {
             System.out.println("삭제할 강의를 선택하세요:");
             lectures.forEach((id, name) -> System.out.println(id + ". " + name));
 
-            System.out.print("삭제할 강의 번호를 입력하세요: ");
-            int lectureId = scanner.nextInt();
+            int lectureId = -1;
+            boolean validInput = false;
+            while (!validInput) {
+                try {
+                    System.out.print("삭제할 강의 번호를 입력하세요: ");
+                    lectureId = scanner.nextInt();
+                    if (lectures.containsKey(lectureId)) {
+                        validInput = true;
+                    } else {
+                        System.out.println("유효한 강의 ID가 아닙니다. 다시 선택하세요.");
+                    }
+                } catch (InputMismatchException e) {
+                    System.out.println("잘못된 입력입니다. 숫자를 입력하세요.");
+                    scanner.next(); // 입력 버퍼 비우기
+                }
+            }
 
             professorDAO.deleteLecture(lectureId);
             System.out.println("강의 " + lectures.get(lectureId) + "가 삭제되었습니다.");
@@ -63,9 +76,26 @@ public class ProfessorService {
             System.out.println("성적을 입력할 강의를 선택하세요:");
             lectures.forEach((id, name) -> System.out.println(id + ". " + name));
 
-            System.out.print("성적을 입력할 강의 번호를 선택하세요: ");
-            int selectedLectureId = scanner.nextInt();
-            scanner.nextLine(); // 버퍼 비우기
+            int selectedLectureId = -1;
+            boolean validInput = false;
+
+            while (!validInput) {
+                try {
+                    System.out.print("성적을 입력할 강의 번호를 선택하세요: ");
+                    selectedLectureId = scanner.nextInt();
+                    scanner.nextLine(); // 입력 버퍼 비우기
+
+                    if (lectures.containsKey(selectedLectureId)) {
+                        validInput = true;
+                    } else {
+                        System.out.println("유효한 강의 번호가 아닙니다. 다시 시도하세요.");
+                    }
+
+                } catch (InputMismatchException e) {
+                    System.out.println("잘못된 입력입니다. 숫자를 입력하세요.");
+                    scanner.next(); // 버퍼 비우기
+                }
+            }
 
             List<Map<String, String>> students = professorDAO.getStudentsForLecture(selectedLectureId);
             if (students.isEmpty()) {
@@ -86,6 +116,7 @@ public class ProfessorService {
 
             professorDAO.saveGrade(selectedLectureId, studentUsername, grade);
             System.out.println("성적이 성공적으로 입력되었습니다.");
+
         } catch (SQLException e) {
             System.out.println("성적 입력 중 오류가 발생했습니다: " + e.getMessage());
         }
@@ -104,9 +135,25 @@ public class ProfessorService {
             System.out.println("성적을 확인할 강의를 선택하세요:");
             lectures.forEach((id, name) -> System.out.println(id + ". " + name));
 
-            System.out.print("성적을 확인할 강의 번호를 선택하세요: ");
-            int selectedLectureId = scanner.nextInt();
-            scanner.nextLine(); // 버퍼 비우기
+            int selectedLectureId = -1;
+            boolean validInput = false;
+
+            while (!validInput) {
+                try {
+                    System.out.print("성적을 확인할 강의 번호를 선택하세요: ");
+                    selectedLectureId = scanner.nextInt();
+                    scanner.nextLine(); // 버퍼 비우기
+
+                    if (lectures.containsKey(selectedLectureId)) {
+                        validInput = true;
+                    } else {
+                        System.out.println("유효한 강의 ID가 아닙니다. 다시 입력하세요.");
+                    }
+                } catch (InputMismatchException e) {
+                    System.out.println("잘못된 입력입니다. 숫자를 입력하세요.");
+                    scanner.next(); // 입력 버퍼 비우기
+                }
+            }
 
             Map<String, String> grades = professorDAO.getGrades(selectedLectureId);
             if (grades.isEmpty()) {
@@ -118,6 +165,7 @@ public class ProfessorService {
             grades.forEach((studentUsername, grade) ->
                     System.out.println("학번: " + studentUsername + ", 성적: " + grade)
             );
+
         } catch (SQLException e) {
             System.out.println("성적 조회 중 오류가 발생했습니다: " + e.getMessage());
         }
