@@ -7,33 +7,39 @@ public class AdminService {
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void manageStudentInfo() {
-        int choice;
-        do {
-            System.out.println("1. 학생 추가");
-            System.out.println("2. 학생 삭제");
-            System.out.println("3. 학생 목록 보기");
-            System.out.println("4. 뒤로 가기");
-            System.out.print("선택: ");
-            choice = Integer.parseInt(scanner.nextLine());
+        while (true) {
+            int choice = -1;
 
-            switch (choice) {
-                case 1:
-                    AdminDAO.addStudent(); // 학생 추가
-                    break;
-                case 2:
-                    AdminDAO.removeStudent(); // 학생 삭제
-                    break;
-                case 3:
-                    viewStudents(); // 학생 목록 보기
-                    break;
-                case 4:
-                    System.out.println("학생 정보 관리를 종료합니다.");
-                    return;
-                default:
-                    System.out.println("잘못된 선택입니다. 다시 선택하세요.");
-                    break;
+            try {
+                System.out.println("1. 학생 추가");
+                System.out.println("2. 학생 삭제");
+                System.out.println("3. 학생 목록 보기");
+                System.out.println("4. 뒤로 가기");
+                System.out.print("선택: ");
+
+                choice = Integer.parseInt(scanner.nextLine()); // 예외 발생 가능
+
+                switch (choice) {
+                    case 1:
+                        AdminDAO.addStudent(); // 학생 추가
+                        break;
+                    case 2:
+                        AdminDAO.removeStudent(); // 학생 삭제
+                        break;
+                    case 3:
+                        viewStudents(); // 학생 목록 보기
+                        break;
+                    case 4:
+                        System.out.println("학생 정보 관리를 종료합니다.");
+                        return; // 종료
+                    default:
+                        System.out.println("잘못된 선택입니다. 다시 선택하세요."); // 잘못된 선택
+                        break;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("잘못된 입력입니다. 숫자를 입력하세요."); // 예외 처리
             }
-        } while (true); // 계속 반복
+        }
     }
 
     private static void viewStudents() {
@@ -50,58 +56,63 @@ public class AdminService {
         }
     }
 
-    // 공지사항 관리
     public static void manageScheduleAndNotice() {
-        int choice;
-        do {
-            System.out.println("1. 공지사항 추가");
-            System.out.println("2. 공지사항 삭제");
-            System.out.println("3. 공지사항 목록 보기");
-            System.out.println("4. 뒤로 가기");
-            System.out.print("선택: ");
-            choice = Integer.parseInt(scanner.nextLine());
+        while (true) {
+            int choice = -1;
 
-            switch (choice) {
-                case 1:
-                    addNotice(); // 공지사항 추가
-                    break;
-                case 2:
-                    int noticeIndex = selectNoticeIndexToDelete(); // 삭제할 공지사항 선택
-                    if (noticeIndex != -1) {
-                        AdminDAO.removeNotice(noticeIndex); // 공지사항 삭제
-                    }
-                    break;
-                case 3:
-                    viewNotices(); // 공지사항 목록 보기
-                    break;
-                case 4:
-                    System.out.println("일정 및 공지사항 관리를 종료합니다.");
-                    return;
-                default:
-                    System.out.println("잘못된 선택입니다. 다시 선택하세요.");
-                    break;
+            try {
+                System.out.println("1. 공지사항 추가");
+                System.out.println("2. 공지사항 삭제");
+                System.out.println("3. 공지사항 목록 보기");
+                System.out.println("4. 뒤로 가기");
+                System.out.print("선택: ");
+
+                choice = Integer.parseInt(scanner.nextLine()); // 예외 발생 가능
+
+                switch (choice) {
+                    case 1:
+                        addNotice(); // 공지사항 추가
+                        break;
+                    case 2:
+                        int noticeIndex = selectNoticeIndexToDelete(); // 삭제할 공지사항 선택
+                        if (noticeIndex != -1) {
+                            AdminDAO.removeNotice(noticeIndex); // 공지사항 삭제
+                        }
+                        break;
+                    case 3:
+                        viewNotices(); // 공지사항 목록 보기
+                        break;
+                    case 4:
+                        System.out.println("일정 및 공지사항 관리를 종료합니다.");
+                        return; // 종료
+                    default:
+                        System.out.println("잘못된 선택입니다. 다시 선택하세요."); // 잘못된 선택
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("잘못된 입력입니다. 숫자를 입력하세요."); // 예외 처리
             }
-        } while (true);
+        }
     }
 
     private static int selectNoticeIndexToDelete() {
         viewNotices(); // 공지사항 목록 보기
         System.out.print("삭제할 공지사항의 번호를 선택하세요: ");
-        int noticeIndex;
+
+        int noticeIndex = -1;
         try {
-            noticeIndex = Integer.parseInt(scanner.nextLine());
+            noticeIndex = Integer.parseInt(scanner.nextLine()); // 예외 발생 가능
         } catch (NumberFormatException e) {
-            System.out.println("올바른 번호를 선택하세요.");
-            return -1; // 잘못된 선택 시 -1 반환
+            System.out.println("올바른 번호를 선택하세요."); // 잘못된 입력
         }
+
         return noticeIndex;
     }
 
     private static void addNotice() {
         System.out.print("추가할 공지사항 제목을 입력하세요: ");
-        String title = scanner.nextLine();
+        String title = scanner.nextLine(); // 공지사항 제목 입력
         System.out.print("추가할 공지사항 내용을 입력하세요: ");
-        String content = scanner.nextLine();
+        String content = scanner.nextLine(); // 공지사항 내용 입력
         AdminDAO.addNotice(title, content); // 공지사항 추가
     }
 

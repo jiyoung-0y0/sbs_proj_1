@@ -44,20 +44,22 @@ public class ProfessorService {
             while (!validInput) {
                 try {
                     System.out.print("삭제할 강의 번호를 입력하세요: ");
-                    lectureId = scanner.nextInt();
+                    lectureId = scanner.nextInt(); // 예외 발생 가능
+                    scanner.nextLine(); // 버퍼 비우기
                     if (lectures.containsKey(lectureId)) {
                         validInput = true;
                     } else {
                         System.out.println("유효한 강의 ID가 아닙니다. 다시 선택하세요.");
                     }
                 } catch (InputMismatchException e) {
-                    System.out.println("잘못된 입력입니다. 숫자를 입력하세요.");
-                    scanner.next(); // 입력 버퍼 비우기
+                    System.out.println("잘못된 입력입니다. 숫자를 입력하세요."); // 예외 처리
+                    scanner.next(); // 버퍼 비우기
                 }
             }
 
             professorDAO.deleteLecture(lectureId);
             System.out.println("강의 " + lectures.get(lectureId) + "가 삭제되었습니다.");
+
         } catch (SQLException e) {
             System.out.println("강의 삭제 중 오류가 발생했습니다: " + e.getMessage());
         }
@@ -82,7 +84,7 @@ public class ProfessorService {
             while (!validInput) {
                 try {
                     System.out.print("성적을 입력할 강의 번호를 선택하세요: ");
-                    selectedLectureId = scanner.nextInt();
+                    selectedLectureId = scanner.nextInt(); // 예외 발생 가능
                     scanner.nextLine(); // 입력 버퍼 비우기
 
                     if (lectures.containsKey(selectedLectureId)) {
@@ -92,7 +94,7 @@ public class ProfessorService {
                     }
 
                 } catch (InputMismatchException e) {
-                    System.out.println("잘못된 입력입니다. 숫자를 입력하세요.");
+                    System.out.println("잘못된 입력입니다. 숫자를 입력하세요."); // 예외 처리
                     scanner.next(); // 버퍼 비우기
                 }
             }
@@ -112,9 +114,9 @@ public class ProfessorService {
             String studentUsername = scanner.nextLine();
 
             System.out.print("성적을 입력하세요 (A+, A0, B+, B0, C+, C0, D+, D0, F): ");
-            String grade = scanner.nextLine();
+            String grade = scanner.nextLine(); // 입력값 받기
 
-            professorDAO.saveGrade(selectedLectureId, studentUsername, grade);
+            professorDAO.saveGrade(selectedLectureId, studentUsername, grade); // 성적 저장
             System.out.println("성적이 성공적으로 입력되었습니다.");
 
         } catch (SQLException e) {
@@ -140,34 +142,34 @@ public class ProfessorService {
 
             while (!validInput) {
                 try {
-                    System.out.print("성적을 확인할 강의 번호를 선택하세요: ");
-                    selectedLectureId = scanner.nextInt();
-                    scanner.nextLine(); // 버퍼 비우기
+                    System.out.print("성적을 확인할 강의 번호를 선택하세요: "); // 입력받기
+                    selectedLectureId = scanner.nextInt(); // 예외 발생 가능
+                    scanner.nextLine(); // 입력 버퍼 비우기
 
                     if (lectures.containsKey(selectedLectureId)) {
                         validInput = true;
                     } else {
-                        System.out.println("유효한 강의 ID가 아닙니다. 다시 입력하세요.");
+                        System.out.println("유효한 강의 ID가 아닙니다. 다시 입력하세요."); // 잘못된 입력 처리
                     }
                 } catch (InputMismatchException e) {
-                    System.out.println("잘못된 입력입니다. 숫자를 입력하세요.");
-                    scanner.next(); // 입력 버퍼 비우기
+                    System.out.println("잘못된 입력입니다. 숫자를 입력하세요."); // 예외 처리
+                    scanner.next(); // 버퍼 비우기
                 }
             }
 
-            Map<String, String> grades = professorDAO.getGrades(selectedLectureId);
+            Map<String, String> grades = professorDAO.getGrades(selectedLectureId); // 성적 조회
             if (grades.isEmpty()) {
-                System.out.println("등록된 학생 성적이 없습니다.");
+                System.out.println("등록된 학생 성적이 없습니다."); // 등록된 성적이 없을 때
                 return;
             }
 
-            System.out.println("과목의 성적:");
+            System.out.println("강의의 학생 성적:");
             grades.forEach((studentUsername, grade) ->
-                    System.out.println("학번: " + studentUsername + ", 성적: " + grade)
+                    System.out.println("학번: " + studentUsername + ", 성적: " + grade) // 출력
             );
 
         } catch (SQLException e) {
-            System.out.println("성적 조회 중 오류가 발생했습니다: " + e.getMessage());
+            System.out.println("성적 조회 중 오류가 발생했습니다: " + e.getMessage()); // 예외 처리
         }
     }
 }

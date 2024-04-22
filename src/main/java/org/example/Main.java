@@ -8,6 +8,7 @@ import org.example.db.DBConnection;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -17,7 +18,7 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            initializeDB();
+           initializeDB();
             initializeCredentials();
             showLoginPage();
         } catch (SQLException e) {
@@ -48,22 +49,31 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
-            System.out.println("사용자 유형을 선택하세요:");
-            System.out.println("1. 학생");
-            System.out.println("2. 교수");
-            System.out.println("3. 관리자");
-            System.out.println("0. 종료");
-            System.out.print("선택: ");
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // 엔터키 소모
+            int choice = -1;
+
+            try {
+                System.out.println("사용자 유형을 선택하세요:");
+                System.out.println("1. 학생");
+                System.out.println("2. 교수");
+                System.out.println("3. 관리자");
+                System.out.println("0. 종료");
+                System.out.print("선택: ");
+
+                choice = scanner.nextInt(); // 사용자가 숫자가 아닌 값을 입력하면 예외 발생 가능
+                scanner.nextLine(); // 엔터키 소모
+            } catch (InputMismatchException e) {
+                System.out.println("잘못된 입력입니다. 숫자를 입력하세요.");
+                scanner.nextLine(); // 잘못된 입력 제거
+                continue; // 다시 선택을 요청합니다.
+            }
 
             if (choice == 0) {
                 System.out.println("프로그램을 종료합니다.");
-                System.exit(0); // 프로세스를 즉시 종료
+                System.exit(0);
             }
 
             System.out.print("사용자 이름을 입력하세요: ");
-            String username = scanner.nextLine(); // 학생, 교수, 관리자 이름 입력
+            String username = scanner.nextLine(); // 사용자 이름 입력
 
             System.out.print("비밀번호를 입력하세요: ");
             String password = scanner.nextLine(); // 비밀번호 입력
@@ -100,7 +110,7 @@ public class Main {
 
                 default:
                     System.out.println("잘못된 선택입니다. 다시 시도하십시오.");
-                    scanner.nextLine(); // 남아있는 엔터키 또는 잘못된 입력 소모
+                    continue; // 다시 선택을 요청합니다.
             }
         }
     }
