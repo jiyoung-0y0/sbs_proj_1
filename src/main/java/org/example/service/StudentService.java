@@ -25,6 +25,7 @@ public class StudentService {
         this.studentUsername = studentUsername; // 로그인한 학생 학번 설정
     }
 
+    // 강의 신청
     public void registerLecture() {
         List<Map<String, Object>> availableLectures = studentDAO.getAvailableLectures(); // 신청 가능한 강의 목록
         if (availableLectures.isEmpty()) {
@@ -61,9 +62,16 @@ public class StudentService {
         }
     }
 
+    // 학생 성적 조회
     public void viewSubjectsAndGrades() {
         List<Map<String, Object>> subjectsAndGrades = studentDAO.viewSubjectsAndGrades(studentUsername);
-        System.out.println("과목 및 성적:");
+
+        if (subjectsAndGrades.isEmpty()) {
+            System.out.println("조회할 성적이 없습니다.");
+            return;
+        }
+
+        System.out.println("강의 및 성적:");
         for (Map<String, Object> entry : subjectsAndGrades) {
             System.out.println(" - " + entry.get("lecture_name") + ": " + entry.get("grade"));
         }
