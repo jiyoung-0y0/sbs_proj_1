@@ -29,12 +29,12 @@ CREATE TABLE `course_registrations` (
   KEY `lecture_id` (`lecture_id`),
   CONSTRAINT `course_registrations_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`student_id`),
   CONSTRAINT `course_registrations_ibfk_2` FOREIGN KEY (`lecture_id`) REFERENCES `lectures` (`lecture_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `course_registrations` */
 
 insert  into `course_registrations`(`registration_id`,`student_id`,`lecture_id`) values 
-(3,1,5);
+(2,1,2);
 
 /*Table structure for table `grades` */
 
@@ -50,12 +50,12 @@ CREATE TABLE `grades` (
   KEY `student_id` (`student_id`),
   CONSTRAINT `grades_ibfk_1` FOREIGN KEY (`lecture_id`) REFERENCES `lectures` (`lecture_id`),
   CONSTRAINT `grades_ibfk_2` FOREIGN KEY (`student_id`) REFERENCES `students` (`student_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `grades` */
 
 insert  into `grades`(`grade_id`,`lecture_id`,`student_id`,`grade`) values 
-(5,5,1,'d');
+(2,2,1,'S');
 
 /*Table structure for table `lectures` */
 
@@ -70,13 +70,12 @@ CREATE TABLE `lectures` (
   PRIMARY KEY (`lecture_id`),
   KEY `professor_id` (`professor_id`),
   CONSTRAINT `lectures_ibfk_1` FOREIGN KEY (`professor_id`) REFERENCES `professors` (`professor_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `lectures` */
 
 insert  into `lectures`(`lecture_id`,`lecture_name`,`professor_id`,`capacity`,`remaining_capacity`) values 
-(5,'apfhd',NULL,3,2),
-(6,'dkssud',NULL,3,3);
+(2,'국어',NULL,3,2);
 
 /*Table structure for table `notices` */
 
@@ -87,12 +86,13 @@ CREATE TABLE `notices` (
   `title` varchar(100) NOT NULL,
   `content` text NOT NULL,
   PRIMARY KEY (`notice_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `notices` */
 
 insert  into `notices`(`notice_id`,`title`,`content`) values 
-(2,'dkssudgktpy','dlrjqsdl');
+(2,'안녕하세요','저는 김지영입니다'),
+(3,'안녕하세요','저는 김지영입니다');
 
 /*Table structure for table `professors` */
 
@@ -121,13 +121,15 @@ CREATE TABLE `students` (
   `total_courses_allowed` int(11) DEFAULT 5,
   PRIMARY KEY (`student_id`),
   UNIQUE KEY `student_username` (`student_username`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `students` */
 
 insert  into `students`(`student_id`,`student_name`,`student_username`,`student_password`,`total_courses_allowed`) values 
-(1,'rlawldud','20200553','wldud9409',5),
-(2,'rlawldb','2020','rlawldb',5);
+(1,'김지영','20200553','wldud9409',5),
+(2,'김지유','20200554','wldb1234',5),
+(3,'','fkdj','dkjf',5),
+(4,'rlawldud','dkfjd','dkjfs',5);
 
 /* Trigger structure for table `course_registrations` */
 
@@ -173,26 +175,7 @@ END */$$
 
 DELIMITER ;
 
-/* Trigger structure for table `students` */
-
-DELIMITER $$
-
-/*!50003 DROP TRIGGER*//*!50032 IF EXISTS */ /*!50003 `limit_student_registration` */$$
-
-/*!50003 CREATE */ /*!50017 DEFINER = 'sbsst'@'%' */ /*!50003 TRIGGER `limit_student_registration` BEFORE INSERT ON `students` FOR EACH ROW 
-BEGIN
-    DECLARE student_count INT;
-    SELECT COUNT(*) INTO student_count FROM students;
-    IF student_count >= 5 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Only 5 students can be registered.';
-    END IF;
-END */$$
-
-
-DELIMITER ;
-
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;git
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
