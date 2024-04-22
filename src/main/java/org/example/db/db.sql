@@ -74,6 +74,7 @@ BEGIN
     END IF;
 END //
 DELIMITER ;
+DROP TRIGGER IF EXISTS limit_student_registration;
 
 -- 강의 수용 가능한 인원 갱신 트리거
 DELIMITER //

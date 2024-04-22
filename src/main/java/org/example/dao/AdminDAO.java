@@ -30,10 +30,15 @@ public class AdminDAO {
                     "INSERT INTO students (student_name, student_username, student_password) VALUES ('%s', '%s', '%s')",
                     name, studentId, password
             );
+
             dbConnection.insert(insertQuery);
             System.out.println("학생 정보가 성공적으로 추가되었습니다.");
         } catch (Exception e) {
-            System.err.println("학생 정보 추가 중 오류가 발생했습니다: " + e.getMessage());
+            if (e.getMessage().contains("Only 5 students can be registered.")) {
+                System.out.println("학생 등록 수 제한에 도달했습니다. 최대 5명까지만 등록할 수 있습니다.");
+            } else {
+                System.err.println("학생 정보 추가 중 오류가 발생했습니다: " + e.getMessage());
+            }
         } finally {
             dbConnection.close();
         }
@@ -124,6 +129,22 @@ public class AdminDAO {
         return notices;
     }
 
+    public static void addNotice(String title, String content) {
+        try {
+            dbConnection.connect();
+            String insertQuery = String.format(
+                    "INSERT INTO notices (title, content) VALUES ('%s', '%s')",
+                    title, content
+            );
+            dbConnection.insert(insertQuery);
+            System.out.println("공지사항이 성공적으로 추가되었습니다.");
+        } catch (Exception e) {
+            System.err.println("공지사항 추가 중 오류가 발생했습니다: " + e.getMessage());
+        } finally {
+            dbConnection.close();
+        }
+    }
+
     public static void removeNotice(int noticeIndex) {
         List<Map<String, String>> notices = getNotices();
         if (notices.isEmpty()) {
@@ -150,22 +171,6 @@ public class AdminDAO {
             }
         } catch (Exception e) {
             System.err.println("공지사항 삭제 중 오류가 발생했습니다: " + e.getMessage());
-        } finally {
-            dbConnection.close();
-        }
-    }
-
-    public static void addNotice(String title, String content) {
-        try {
-            dbConnection.connect();
-            String insertQuery = String.format(
-                    "INSERT INTO notices (title, content) VALUES ('%s', '%s')",
-                    title, content
-            );
-            dbConnection.insert(insertQuery);
-            System.out.println("공지사항이 성공적으로 추가되었습니다.");
-        } catch (Exception e) {
-            System.err.println("공지사항 추가 중 오류가 발생했습니다: " + e.getMessage());
         } finally {
             dbConnection.close();
         }
